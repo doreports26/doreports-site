@@ -107,11 +107,16 @@ export function Footer() {
               <span className="w-2 h-2 rounded-full bg-[#f58220]" /> Quick Links
             </h3>
             <ul className="flex flex-col gap-4 text-[14px] font-medium text-gray-400">
-              {['About Us', 'Contact Us', 'Disclaimer', 'Privacy Policy'].map((link) => (
-                <li key={link}>
-                  <Link href="#" className="group flex items-center gap-2 hover:text-[#f58220] transition-colors">
+              {[
+                { name: 'About Us', href: '#' },
+                { name: 'Contact Us', href: '#' },
+                { name: 'Disclaimer', href: '/disclaimer' },
+                { name: 'Privacy Policy', href: '/privacy-policy' },
+              ].map((link) => (
+                <li key={link.name}>
+                  <Link href={link.href} className="group flex items-center gap-2 hover:text-[#f58220] transition-colors">
                     <ArrowRight className="w-3 h-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300 text-[#f58220]" />
-                    {link}
+                    {link.name}
                   </Link>
                 </li>
               ))}

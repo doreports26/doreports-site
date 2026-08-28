@@ -144,11 +144,17 @@ export function Navbar() {
                 <div>
                   <span className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 block">Quick Categories</span>
                   <div className="grid grid-cols-2 gap-4">
-                     {["राजकारण", "खेळ", "मनोरंजन", "शेती"].map((cat, idx) => (
-                       <div key={idx} className="cursor-pointer group flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-[#f58220] hover:bg-orange-50/30 transition-colors">
-                         <span className="font-semibold text-gray-800 group-hover:text-[#f58220] transition-colors">{cat}</span>
+                     {[
+                       { name: "कल्याण- डोंबिवली (KDMC)", href: "/category/kalyan-dombivli" },
+                       { name: "महत्वाचे", href: "/category/important" },
+                       { name: "विशेष", href: "/category/special" },
+                       { name: "Welfare", href: "/category/welfare" },
+                       { name: "शिक्षण", href: "/category/education" },
+                     ].map((cat, idx) => (
+                       <Link key={idx} href={cat.href} onClick={() => setIsSearchOpen(false)} className="cursor-pointer group flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-[#f58220] hover:bg-orange-50/30 transition-colors">
+                         <span className="font-semibold text-gray-800 group-hover:text-[#f58220] transition-colors">{cat.name}</span>
                          <span className="text-gray-300 group-hover:text-[#f58220] transition-colors">→</span>
-                       </div>
+                       </Link>
                      ))}
                   </div>
                 </div>
