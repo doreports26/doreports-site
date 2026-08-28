@@ -31,7 +31,7 @@ export function Pagination({ currentPage, totalPages, basePath }: PaginationProp
       {currentPage > 1 ? (
         <Link 
           href={`${basePath}?page=${currentPage - 1}`}
-          className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-500 hover:text-[#004a99] hover:border-[#004a99] hover:bg-blue-50 transition-all mr-2"
+          className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-500 hover:text-[#cd0442] hover:border-[#cd0442] hover:bg-[#cd0442]/5 transition-all mr-2"
           aria-label="Previous page"
         >
           <ChevronLeft className="w-5 h-5" />
@@ -59,8 +59,8 @@ export function Pagination({ currentPage, totalPages, basePath }: PaginationProp
             href={`${basePath}?page=${page}`}
             className={`flex items-center justify-center w-10 h-10 rounded-full text-sm font-semibold transition-all ${
               isCurrent
-                ? "bg-[#004a99] text-white shadow-md"
-                : "border border-gray-200 text-gray-600 hover:text-[#004a99] hover:border-[#004a99] hover:bg-blue-50"
+                ? "bg-gradient-to-r from-[#f72e06] to-[#cd0442] text-white shadow-md"
+                : "border border-gray-200 text-gray-600 hover:text-[#cd0442] hover:border-[#cd0442] hover:bg-[#cd0442]/5"
             }`}
           >
             {page}
@@ -72,7 +72,7 @@ export function Pagination({ currentPage, totalPages, basePath }: PaginationProp
       {currentPage < totalPages ? (
         <Link 
           href={`${basePath}?page=${currentPage + 1}`}
-          className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-500 hover:text-[#004a99] hover:border-[#004a99] hover:bg-blue-50 transition-all ml-2"
+          className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-500 hover:text-[#cd0442] hover:border-[#cd0442] hover:bg-[#cd0442]/5 transition-all ml-2"
           aria-label="Next page"
         >
           <ChevronRight className="w-5 h-5" />

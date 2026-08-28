@@ -33,15 +33,13 @@ const YoutubeIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export function Footer() {
   return (
-    <footer className="relative bg-gradient-to-br from-[#1c1e29] to-[#0a0a0f] text-white pt-20 pb-6 font-sans overflow-hidden">
+    <footer className="relative bg-gradient-to-br from-[#090909] via-[#14030a] to-[#090909] text-white pt-20 pb-6 font-sans overflow-hidden border-t border-[#cd0442]/20">
       
       {/* Dynamic Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute -top-[10%] -left-[5%] w-[40%] h-[40%] rounded-full bg-[#0B4A99] opacity-[0.03] blur-[100px]" />
-        <div className="absolute top-[20%] -right-[10%] w-[30%] h-[50%] rounded-full bg-[#ffc20e] opacity-[0.02] blur-[120px]" />
+        <div className="absolute -top-[10%] -left-[5%] w-[40%] h-[40%] rounded-full bg-[#cd0442] opacity-[0.05] blur-[120px]" />
+        <div className="absolute top-[20%] -right-[10%] w-[30%] h-[50%] rounded-full bg-[#f72e06] opacity-[0.04] blur-[140px]" />
       </div>
-
-
 
       <div className="max-w-[1200px] mx-auto px-4 sm:px-6 mt-8 relative z-10">
         
@@ -49,29 +47,22 @@ export function Footer() {
           
           {/* Column 1: Brand & Description (Wider) */}
           <div className="flex flex-col lg:col-span-4 pr-0 lg:pr-8">
-            <Link href="/" className="inline-block mb-6 relative w-max group">
-              <div className="relative flex items-center h-10 w-fit transition-transform group-hover:scale-105">
-                {/* Yellow left border */}
-                <div className="absolute left-[-6px] top-0 bottom-0 w-3 bg-[#ffc20e] transform -skew-x-[20deg]" />
-                
-                {/* Main Blue box */}
-                <div className="bg-[#0B4A99] text-white px-5 py-1.5 transform -skew-x-[20deg] z-10 flex items-center justify-center shadow-lg shadow-[#0B4A99]/20">
-                  <span className="transform skew-x-[20deg] block font-bold text-[22px] tracking-wide mt-[1px]">थोडक्यात</span>
-                </div>
-                
-                {/* Orange right border */}
-                <div className="absolute right-[-6px] top-0 bottom-0 w-3 bg-[#f58220] transform -skew-x-[20deg]" />
-              </div>
+            <Link href="/" className="inline-block mb-4 relative w-max group transition-transform duration-200 hover:scale-105">
+              <img 
+                src="/do-reports-logo.png" 
+                alt="Do Reports" 
+                className="h-16 md:h-20 w-auto object-contain max-h-[80px]"
+              />
             </Link>
             
             <p className="text-[14px] leading-relaxed text-gray-400 mb-6">
-              Thodkyaat is your source for concise, accurate, and impactful news, delivered quickly & efficiently. We are the leading destination for staying informed about the latest happenings in Maharashtra, India.
+              Do Reports is your trusted source for concise, accurate, and impactful news, delivered quickly & efficiently. We are the leading destination for staying informed about the latest happenings in Maharashtra, India.
             </p>
 
             <div className="flex flex-wrap gap-2">
               <span className="text-xs font-bold text-gray-500 uppercase tracking-wider w-full mb-1">Trending Now:</span>
               {['Assembly Elections', 'Mumbai Rains', 'Gold Rates', 'Mhada Lottery'].map((tag) => (
-                <span key={tag} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-gray-300 hover:bg-[#0B4A99] hover:text-white hover:border-[#0B4A99] transition-colors cursor-pointer">
+                <span key={tag} className="px-3 py-1 bg-white/5 border border-white/10 rounded-full text-xs text-gray-300 hover:bg-[#cd0442] hover:text-white hover:border-[#cd0442] transition-colors cursor-pointer">
                   #{tag}
                 </span>
               ))}
@@ -81,7 +72,7 @@ export function Footer() {
           {/* Column 2: Categories */}
           <div className="lg:col-span-2 xl:col-start-5 xl:col-span-2">
             <h3 className="text-white font-bold text-[17px] mb-6 flex items-center gap-3">
-              <span className="w-2 h-2 rounded-full bg-[#ffc20e]" /> Categories
+              <span className="w-2 h-2 rounded-full bg-[#f72e06]" /> Categories
             </h3>
             <ul className="flex flex-col gap-4 text-[14px] font-medium text-gray-400">
               {[
@@ -92,8 +83,8 @@ export function Footer() {
                 { name: 'शिक्षण', href: '/category/education' },
               ].map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="group flex items-center gap-2 hover:text-[#ffc20e] transition-colors">
-                    <ArrowRight className="w-3 h-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300 text-[#ffc20e]" />
+                  <Link href={link.href} className="group flex items-center gap-2 hover:text-[#f72e06] transition-colors">
+                    <ArrowRight className="w-3 h-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300 text-[#f72e06]" />
                     {link.name}
                   </Link>
                 </li>
@@ -104,7 +95,7 @@ export function Footer() {
           {/* Column 3: Quick Links */}
           <div className="lg:col-span-2">
             <h3 className="text-white font-bold text-[17px] mb-6 flex items-center gap-3">
-              <span className="w-2 h-2 rounded-full bg-[#f58220]" /> Quick Links
+              <span className="w-2 h-2 rounded-full bg-[#cd0442]" /> Quick Links
             </h3>
             <ul className="flex flex-col gap-4 text-[14px] font-medium text-gray-400">
               {[
@@ -114,8 +105,8 @@ export function Footer() {
                 { name: 'Privacy Policy', href: '/privacy-policy' },
               ].map((link) => (
                 <li key={link.name}>
-                  <Link href={link.href} className="group flex items-center gap-2 hover:text-[#f58220] transition-colors">
-                    <ArrowRight className="w-3 h-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300 text-[#f58220]" />
+                  <Link href={link.href} className="group flex items-center gap-2 hover:text-[#cd0442] transition-colors">
+                    <ArrowRight className="w-3 h-3 opacity-0 -ml-5 group-hover:opacity-100 group-hover:ml-0 transition-all duration-300 text-[#cd0442]" />
                     {link.name}
                   </Link>
                 </li>
@@ -126,12 +117,12 @@ export function Footer() {
           {/* Column 4: Follow Us On (Glassmorphism Card) */}
           <div className="lg:col-span-4">
             <h3 className="text-white font-bold text-[17px] mb-6 flex items-center gap-3">
-              <span className="w-2 h-2 rounded-full bg-[#0B4A99]" /> Follow Us On
+              <span className="w-2 h-2 rounded-full bg-[#b10150]" /> Follow Us On
             </h3>
             
             <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-[#0B4A99] to-[#ffc20e] rounded-xl blur opacity-20 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
-              <div className="relative bg-[#222430]/80 backdrop-blur-md border border-white/10 rounded-xl p-6 flex flex-col gap-6 shadow-xl hover:-translate-y-1 transition-all duration-300">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-[#f72e06] via-[#cd0442] to-[#b10150] rounded-xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200" />
+              <div className="relative bg-[#111116]/90 backdrop-blur-md border border-white/10 rounded-xl p-6 flex flex-col gap-6 shadow-xl hover:-translate-y-1 transition-all duration-300">
                 <div className="flex flex-col pb-1">
                   <span className="text-[13px] text-gray-300 font-medium leading-relaxed">Get the latest updates directly on your feed.</span>
                 </div>
@@ -162,7 +153,7 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="pt-8 mt-4 border-t border-white/10 flex items-center justify-center text-[13px] text-gray-400">
-          <p>© {new Date().getFullYear()} <span className="font-semibold text-white">Implant Media Pvt. Ltd.</span> | All rights reserved.</p>
+          <p>© {new Date().getFullYear()} <span className="font-semibold text-white">Do Reports</span> | All rights reserved.</p>
         </div>
 
       </div>

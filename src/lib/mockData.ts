@@ -24,7 +24,7 @@ export const mainStory: Article = {
   title: "सोन्याच्या दरात घसरण! जाणून घ्या आजचे दर",
   date: "August 26, 2026",
   image: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=1470&auto=format&fit=crop",
-  tag: "थोडक्यात",
+  tag: "Do Reports",
   author: "Sonal.K",
   snippet: "Gold Rate | गेल्या काही दिवसांपासून सोने आणि चांदीच्या किमतीत वाढीचा कल पाहायला मिळत होता. मात्र, 26 ऑगस्ट रोजी जळगावच्या...",
   content: mockContent
