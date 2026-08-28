@@ -2,16 +2,18 @@
 
 import Link from "next/link";
 import { Search, X } from "lucide-react";
+import { FiFacebook as Facebook, FiTwitter as Twitter, FiInstagram as Instagram, FiYoutube as Youtube } from "react-icons/fi";
 import { useState, useEffect, useRef } from "react";
 
 const navLinks = [
-  { name: "Latest News", href: "#", bold: true },
-  { name: "कल्याण- डोंबिवली", href: "#" },
-  { name: "महत्वाचे", href: "#" },
-  { name: "विशेष", href: "#" },
-  { name: "Welfare", href: "#" },
-  { name: "शिक्षण", href: "#" },
+  { name: "Latest News", href: "/category/latest-news", bold: true },
+  { name: "कल्याण- डोंबिवली (KDMC)", href: "/category/kalyan-dombivli" },
+  { name: "महत्वाचे", href: "/category/important" },
+  { name: "विशेष", href: "/category/special" },
+  { name: "Welfare", href: "/category/welfare" },
+  { name: "शिक्षण", href: "/category/education" },
 ];
+
 
 export function Navbar() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -66,10 +68,16 @@ export function Navbar() {
             <Link
               key={index}
               href={link.href}
-              className={`text-[15px] hover:text-[#004a99] transition-colors ${
+              className={`text-[15px] hover:text-[#004a99] transition-colors flex items-center ${
                 link.bold ? "font-bold text-black" : "font-semibold text-gray-800"
               }`}
             >
+              {link.name === "Latest News" && (
+                <div className="relative flex items-center justify-center mr-1.5">
+                  <div className="w-2 h-2 rounded-full bg-red-500 relative z-10"></div>
+                  <div className="absolute w-4 h-4 rounded-full bg-red-500/40 animate-ping"></div>
+                </div>
+              )}
               {link.name}
             </Link>
           ))}
@@ -132,15 +140,38 @@ export function Navbar() {
                 </div>
               </div>
               
-              <div>
-                <span className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 block">Quick Categories</span>
-                <div className="grid grid-cols-2 gap-4">
-                   {["राजकारण", "खेळ", "मनोरंजन", "शेती"].map((cat, idx) => (
-                     <div key={idx} className="cursor-pointer group flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-[#f58220] hover:bg-orange-50/30 transition-colors">
-                       <span className="font-semibold text-gray-800 group-hover:text-[#f58220] transition-colors">{cat}</span>
-                       <span className="text-gray-300 group-hover:text-[#f58220] transition-colors">→</span>
-                     </div>
-                   ))}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div>
+                  <span className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 block">Quick Categories</span>
+                  <div className="grid grid-cols-2 gap-4">
+                     {["राजकारण", "खेळ", "मनोरंजन", "शेती"].map((cat, idx) => (
+                       <div key={idx} className="cursor-pointer group flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-[#f58220] hover:bg-orange-50/30 transition-colors">
+                         <span className="font-semibold text-gray-800 group-hover:text-[#f58220] transition-colors">{cat}</span>
+                         <span className="text-gray-300 group-hover:text-[#f58220] transition-colors">→</span>
+                       </div>
+                     ))}
+                  </div>
+                </div>
+
+                <div>
+                  <span className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-4 block">Follow Us On</span>
+                  <div className="h-[calc(100%-2rem)] flex flex-col justify-center p-6 rounded-xl border border-gray-100 bg-gray-50/50 hover:bg-gray-50 transition-colors">
+                    <p className="text-gray-800 font-semibold mb-6">Get the latest updates directly on your feed.</p>
+                    <div className="flex items-center space-x-4">
+                      <Link href="#" className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:text-[#004a99] hover:border-[#004a99] hover:shadow-md transition-all duration-300">
+                        <Facebook size={18} />
+                      </Link>
+                      <Link href="#" className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:text-[#1DA1F2] hover:border-[#1DA1F2] hover:shadow-md transition-all duration-300">
+                        <Twitter size={18} />
+                      </Link>
+                      <Link href="#" className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:text-[#E1306C] hover:border-[#E1306C] hover:shadow-md transition-all duration-300">
+                        <Instagram size={18} />
+                      </Link>
+                      <Link href="#" className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:text-[#FF0000] hover:border-[#FF0000] hover:shadow-md transition-all duration-300">
+                        <Youtube size={18} />
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
 
