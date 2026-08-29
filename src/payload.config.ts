@@ -44,6 +44,9 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URI || process.env.POSTGRES_URL || 'postgresql://postgres:postgres@127.0.0.1:5432/doreports',
       ssl: process.env.DATABASE_URI ? { rejectUnauthorized: false } : false,
+      max: process.env.NODE_ENV === 'production' ? 4 : 10,
+      idleTimeoutMillis: 15000,
+      connectionTimeoutMillis: 10000,
     },
   }),
 })
