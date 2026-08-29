@@ -42,10 +42,15 @@ export default buildConfig({
   },
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URI || process.env.POSTGRES_URL || 'postgresql://postgres:postgres@127.0.0.1:5432/doreports',
+      connectionString: (() => {
+        // Strip sslmode from connection string — we handle SSL via the `ssl` config object below
+        // This prevents Node.js 22+ SECURITY WARNING about SSL mode aliases
+        const uri = process.env.DATABASE_URI || process.env.POSTGRES_URL || 'postgresql://postgres:postgres@127.0.0.1:5432/doreports'
+        return uri.replace(/[?&]sslmode=[^&]*/gi, '').replace(/\?$/, '')
+      })(),
       ssl: process.env.DATABASE_URI ? { rejectUnauthorized: false } : false,
-      max: process.env.NODE_ENV === 'production' ? 4 : 10,
-      idleTimeoutMillis: 15000,
+      max: process.env.NODE_ENV === 'production' ? 3 : 10,
+      idleTimeoutMillis: 10000,
       connectionTimeoutMillis: 10000,
     },
   }),

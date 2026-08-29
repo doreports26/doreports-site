@@ -6,6 +6,9 @@ import {
   getStoriesBySection 
 } from "@/lib/api";
 
+// Render at request time, not at build time — prevents Supabase pool exhaustion during `next build`
+export const dynamic = 'force-dynamic'
+
 export default async function Home() {
   const mainStory = await getMainStory();
   const topStories = await getTopStories(4);

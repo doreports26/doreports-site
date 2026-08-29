@@ -7,6 +7,8 @@ import { RichTextRenderer } from "@/components/RichTextRenderer";
 import { Zap, BadgeCheck, Copy, Clock, Calendar, Eye } from "lucide-react";
 import type { Metadata } from "next";
 
+export const dynamic = 'force-dynamic'
+
 export async function generateMetadata({
   params,
 }: {

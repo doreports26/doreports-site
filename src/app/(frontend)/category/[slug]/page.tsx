@@ -4,6 +4,8 @@ import { Pagination } from "@/components/Pagination";
 import { getArticlesByCategory } from "@/lib/api";
 import type { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic'
+
 const categoryTitles: Record<string, string> = {
   "latest-news": "Latest News",
   "kalyan-dombivli": "कल्याण- डोंबिवली (KDMC)",

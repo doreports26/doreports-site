@@ -5,6 +5,8 @@ import { searchArticles } from "@/lib/api";
 import { Search as SearchIcon, AlertCircle, ArrowRight } from "lucide-react";
 import type { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic'
+
 export async function generateMetadata({
   searchParams,
 }: {
