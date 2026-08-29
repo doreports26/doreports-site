@@ -12,7 +12,22 @@ import { Articles } from './collections/Articles'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL || (process.env.NODE_ENV === 'production' ? 'https://doreports.in' : 'http://localhost:3000')
+
 export default buildConfig({
+  serverURL: serverUrl,
+  cors: [
+    'https://doreports.in',
+    'https://www.doreports.in',
+    'http://localhost:3000',
+    serverUrl,
+  ].filter(Boolean),
+  csrf: [
+    'https://doreports.in',
+    'https://www.doreports.in',
+    'http://localhost:3000',
+    serverUrl,
+  ].filter(Boolean),
   admin: {
     user: Users.slug,
     importMap: {
