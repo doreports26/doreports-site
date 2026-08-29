@@ -25,63 +25,65 @@ export function Pagination({ currentPage, totalPages, basePath }: PaginationProp
     return pages;
   };
 
-  return (
-    <div className="flex items-center justify-center space-x-1 mt-12 mb-8">
-      {/* Previous Button */}
-      {currentPage > 1 ? (
-        <Link 
-          href={`${basePath}?page=${currentPage - 1}`}
-          className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-500 hover:text-[#cd0442] hover:border-[#cd0442] hover:bg-[#cd0442]/5 transition-all mr-2"
-          aria-label="Previous page"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </Link>
-      ) : (
-        <div className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-100 text-gray-300 mr-2 cursor-not-allowed">
-          <ChevronLeft className="w-5 h-5" />
-        </div>
-      )}
+    const separator = basePath.includes('?') ? '&' : '?';
 
-      {/* Page Numbers */}
-      {getPageNumbers().map((page, index) => {
-        if (page === '...') {
-          return (
-            <div key={`ellipsis-${index}`} className="flex items-center justify-center w-10 h-10 text-gray-400">
-              <MoreHorizontal className="w-4 h-4" />
-            </div>
-          );
-        }
-
-        const isCurrent = page === currentPage;
-        return (
-          <Link
-            key={`page-${page}`}
-            href={`${basePath}?page=${page}`}
-            className={`flex items-center justify-center w-10 h-10 rounded-full text-sm font-semibold transition-all ${
-              isCurrent
-                ? "bg-gradient-to-r from-[#f72e06] to-[#cd0442] text-white shadow-md"
-                : "border border-gray-200 text-gray-600 hover:text-[#cd0442] hover:border-[#cd0442] hover:bg-[#cd0442]/5"
-            }`}
+    return (
+      <div className="flex items-center justify-center space-x-1 mt-12 mb-8">
+        {/* Previous Button */}
+        {currentPage > 1 ? (
+          <Link 
+            href={`${basePath}${separator}page=${currentPage - 1}`}
+            className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-500 hover:text-[#cd0442] hover:border-[#cd0442] hover:bg-[#cd0442]/5 transition-all mr-2"
+            aria-label="Previous page"
           >
-            {page}
+            <ChevronLeft className="w-5 h-5" />
           </Link>
-        );
-      })}
+        ) : (
+          <div className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-100 text-gray-300 mr-2 cursor-not-allowed">
+            <ChevronLeft className="w-5 h-5" />
+          </div>
+        )}
 
-      {/* Next Button */}
-      {currentPage < totalPages ? (
-        <Link 
-          href={`${basePath}?page=${currentPage + 1}`}
-          className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-500 hover:text-[#cd0442] hover:border-[#cd0442] hover:bg-[#cd0442]/5 transition-all ml-2"
-          aria-label="Next page"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </Link>
-      ) : (
-        <div className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-100 text-gray-300 ml-2 cursor-not-allowed">
-          <ChevronRight className="w-5 h-5" />
-        </div>
-      )}
-    </div>
-  );
+        {/* Page Numbers */}
+        {getPageNumbers().map((page, index) => {
+          if (page === '...') {
+            return (
+              <div key={`ellipsis-${index}`} className="flex items-center justify-center w-10 h-10 text-gray-400">
+                <MoreHorizontal className="w-4 h-4" />
+              </div>
+            );
+          }
+
+          const isCurrent = page === currentPage;
+          return (
+            <Link
+              key={`page-${page}`}
+              href={`${basePath}${separator}page=${page}`}
+              className={`flex items-center justify-center w-10 h-10 rounded-full text-sm font-semibold transition-all ${
+                isCurrent
+                  ? "bg-gradient-to-r from-[#f72e06] to-[#cd0442] text-white shadow-md"
+                  : "border border-gray-200 text-gray-600 hover:text-[#cd0442] hover:border-[#cd0442] hover:bg-[#cd0442]/5"
+              }`}
+            >
+              {page}
+            </Link>
+          );
+        })}
+
+        {/* Next Button */}
+        {currentPage < totalPages ? (
+          <Link 
+            href={`${basePath}${separator}page=${currentPage + 1}`}
+            className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-200 text-gray-500 hover:text-[#cd0442] hover:border-[#cd0442] hover:bg-[#cd0442]/5 transition-all ml-2"
+            aria-label="Next page"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </Link>
+        ) : (
+          <div className="flex items-center justify-center w-10 h-10 rounded-full border border-gray-100 text-gray-300 ml-2 cursor-not-allowed">
+            <ChevronRight className="w-5 h-5" />
+          </div>
+        )}
+      </div>
+    );
 }

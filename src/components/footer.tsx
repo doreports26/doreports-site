@@ -47,12 +47,14 @@ export function Footer() {
           
           {/* Column 1: Brand & Description (Wider) */}
           <div className="flex flex-col lg:col-span-4 pr-0 lg:pr-8">
-            <Link href="/" className="inline-block mb-4 relative w-max group transition-transform duration-200 hover:scale-105">
-              <img 
-                src="/do-reports-logo.png" 
-                alt="Do Reports" 
-                className="h-16 md:h-20 w-auto object-contain max-h-[80px]"
-              />
+            <Link href="/" className="inline-flex items-center mb-6 w-max group transition-all duration-300 hover:scale-105">
+              <div className="w-20 h-20 md:w-24 md:h-24 bg-white rounded-full flex items-center justify-center p-3 md:p-3.5 shadow-xl shadow-black/40 border border-white/30 ring-4 ring-white/10 transition-all duration-300 group-hover:ring-[#cd0442]/40 group-hover:shadow-[0_8px_30px_rgba(205,4,66,0.3)]">
+                <img 
+                  src="/do-reports-logo.png" 
+                  alt="Do Reports" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
             </Link>
             
             <p className="text-[14px] leading-relaxed text-gray-400 mb-6">

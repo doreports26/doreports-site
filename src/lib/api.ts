@@ -10,6 +10,22 @@ import {
   getArticleBySlug as fallbackGetArticleBySlug,
 } from './mockData'
 
+export interface AuthorItem {
+  name: string
+  fullName?: string
+  role?: string
+  avatar?: string | null
+  avatarLetter?: string
+  verified?: boolean
+  bio?: string
+}
+
+export interface CategoryItem {
+  name: string
+  slug: string
+  badgeColor?: string
+}
+
 export interface ArticleItem {
   id?: string | number
   slug: string
@@ -17,16 +33,16 @@ export interface ArticleItem {
   date: string
   image: string
   tag?: string
+  tags?: string[]
   author?: string
+  authorDetails?: AuthorItem
   snippet?: string
   content?: any
   rawContent?: string
-  category?: {
-    name: string
-    slug: string
-  } | null
+  category?: CategoryItem | null
   section?: string
   highlight?: boolean
+  views?: number
 }
 
 function formatDate(dateVal?: string | Date): string {
@@ -49,17 +65,52 @@ function transformPayloadDocToArticle(doc: any): ArticleItem {
     image = doc.mediaImage.url
   }
 
-  let author = doc.authorNameFallback || 'Sonal.K'
-  if (doc.author && typeof doc.author === 'object' && doc.author.name) {
-    author = doc.author.name
+  let authorName = doc.authorNameFallback || 'Do Reports Desk'
+  let authorObj: AuthorItem = {
+    name: authorName,
+    fullName: authorName,
+    role: 'Special Correspondent | Do Reports',
+    avatar: null,
+    avatarLetter: 'DR',
+    verified: true,
+    bio: 'Special Correspondent | Do Reports',
   }
 
-  let categoryObj = null
+  if (doc.author && typeof doc.author === 'object') {
+    authorName = doc.author.name || authorName
+    let avatarUrl = null
+    if (doc.author.avatar && typeof doc.author.avatar === 'object' && doc.author.avatar.url) {
+      avatarUrl = doc.author.avatar.url
+    }
+
+    authorObj = {
+      name: authorName,
+      fullName: doc.author.fullName || authorName,
+      role: doc.author.role || 'Special Correspondent | Do Reports',
+      avatar: avatarUrl,
+      avatarLetter: doc.author.avatarLetter || authorName.slice(0, 2).toUpperCase() || 'DR',
+      verified: doc.author.verified ?? true,
+      bio: doc.author.bio || 'Special Correspondent | Do Reports',
+    }
+  }
+
+  let categoryObj: CategoryItem | null = null
   if (doc.category && typeof doc.category === 'object') {
     categoryObj = {
       name: doc.category.name,
       slug: doc.category.slug,
+      badgeColor: doc.category.badgeColor || '#cd0442',
     }
+  }
+
+  let tagsList: string[] = []
+  if (Array.isArray(doc.tags)) {
+    tagsList = doc.tags
+      .map((t: any) => (typeof t === 'string' ? t : t?.tag))
+      .filter((t: any): t is string => typeof t === 'string' && t.trim().length > 0)
+  }
+  if (tagsList.length === 0 && doc.tag) {
+    tagsList = [doc.tag, 'महाराष्ट्र', 'ताज्या घडामोडी']
   }
 
   return {
@@ -69,13 +120,16 @@ function transformPayloadDocToArticle(doc: any): ArticleItem {
     date: formatDate(doc.publishedAt || doc.createdAt),
     image,
     tag: doc.tag || 'Do Reports',
-    author,
+    tags: tagsList,
+    author: authorName,
+    authorDetails: authorObj,
     snippet: doc.snippet,
     content: doc.content,
     rawContent: doc.rawContent,
     category: categoryObj,
     section: doc.section,
     highlight: doc.isBreaking,
+    views: typeof doc.views === 'number' ? doc.views : 0,
   }
 }
 
@@ -289,6 +343,84 @@ export async function getArticlesByCategory(categorySlug: string, page = 1, limi
     docs: allArticles.slice((page - 1) * limit, page * limit),
     totalDocs: allArticles.length,
     totalPages: Math.ceil(allArticles.length / limit) || 1,
+    page,
+  }
+}
+
+/**
+ * Search Articles across title, snippet, rawContent, and tag
+ */
+export async function searchArticles(query: string, page = 1, limit = 10) {
+  const trimmed = query?.trim() || ''
+  if (!trimmed) {
+    return {
+      docs: [],
+      totalDocs: 0,
+      totalPages: 1,
+      page: 1,
+    }
+  }
+
+  try {
+    const payload = await getPayload()
+    if (payload) {
+      const result = await payload.find({
+        collection: 'articles',
+        where: {
+          and: [
+            { status: { equals: 'published' } },
+            {
+              or: [
+                { title: { like: trimmed } },
+                { snippet: { like: trimmed } },
+                { rawContent: { like: trimmed } },
+                { tag: { like: trimmed } },
+              ],
+            },
+          ],
+        },
+        page,
+        limit,
+        sort: '-publishedAt',
+      })
+
+      if (result.docs.length > 0) {
+        return {
+          docs: result.docs.map(transformPayloadDocToArticle),
+          totalDocs: result.totalDocs,
+          totalPages: result.totalPages,
+          page: result.page,
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error searching articles in Payload:', err)
+  }
+
+  // Fallback search in mock data
+  const allArticles = [
+    fallbackMainStory,
+    ...fallbackTopStories,
+    ...fallbackPoliticsStories,
+    ...fallbackEntertainmentStories,
+    ...fallbackWebStories,
+    ...fallbackSportsStories,
+  ] as ArticleItem[]
+
+  const qLower = trimmed.toLowerCase()
+  const matched = allArticles.filter((item) => {
+    return (
+      item.title?.toLowerCase().includes(qLower) ||
+      item.snippet?.toLowerCase().includes(qLower) ||
+      item.tag?.toLowerCase().includes(qLower) ||
+      item.rawContent?.toLowerCase().includes(qLower)
+    )
+  })
+
+  return {
+    docs: matched.slice((page - 1) * limit, page * limit),
+    totalDocs: matched.length,
+    totalPages: Math.ceil(matched.length / limit) || 1,
     page,
   }
 }
