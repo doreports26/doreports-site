@@ -1,8 +1,6 @@
-import { post } from './post'
+import { article } from './article'
 import { author } from './author'
 import { category } from './category'
 
-// Alias post as article for backwards compatibility with any existing URLs or references
-export const article = { ...post, name: 'article', title: 'Article' }
-
-export const schemaTypes = [post, article, author, category]
+export { article, author, category }
+export const schemaTypes = [article, author, category]

@@ -1,8 +1,8 @@
 import { defineType, defineField } from 'sanity'
 
-export const post = defineType({
-  name: 'post',
-  title: 'Post',
+export const article = defineType({
+  name: 'article',
+  title: 'Article',
   type: 'document',
   fields: [
     defineField({
@@ -59,6 +59,26 @@ export const post = defineType({
       title: 'Published at',
       type: 'datetime',
       initialValue: () => new Date().toISOString(),
+    }),
+    defineField({
+      name: 'status',
+      title: 'Publication Status',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Published', value: 'published' },
+          { title: 'Draft', value: 'draft' },
+          { title: 'Archived', value: 'archived' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'published',
+    }),
+    defineField({
+      name: 'views',
+      title: 'Views Count',
+      type: 'number',
+      initialValue: 0,
     }),
     defineField({
       name: 'excerpt',
