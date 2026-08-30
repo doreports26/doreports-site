@@ -1,4 +1,5 @@
-import { getPayload } from './payload'
+import { client, isSanityConfigured } from '@/sanity/client'
+import { urlFor } from '@/sanity/image'
 import {
   Article as MockArticle,
   mainStory as fallbackMainStory,
@@ -59,12 +60,20 @@ function formatDate(dateVal?: string | Date): string {
   }
 }
 
-function transformPayloadDocToArticle(doc: any): ArticleItem {
-  let image = doc.imageUrl || 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=1470&auto=format&fit=crop'
-  if (doc.mediaImage && typeof doc.mediaImage === 'object' && doc.mediaImage.url) {
-    image = doc.mediaImage.url
+/**
+ * Transform a raw Sanity document into the ArticleItem shape
+ * that the frontend components expect (identical interface).
+ */
+function transformSanityDocToArticle(doc: any): ArticleItem {
+  // Image: prefer Sanity image, fall back to external URL, then placeholder
+  let image = 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=1470&auto=format&fit=crop'
+  if (doc.mainImage) {
+    image = urlFor(doc.mainImage).width(1200).height(800).url()
+  } else if (doc.imageUrl) {
+    image = doc.imageUrl
   }
 
+  // Author
   let authorName = doc.authorNameFallback || 'Do Reports Desk'
   let authorObj: AuthorItem = {
     name: authorName,
@@ -76,11 +85,12 @@ function transformPayloadDocToArticle(doc: any): ArticleItem {
     bio: 'Special Correspondent | Do Reports',
   }
 
-  if (doc.author && typeof doc.author === 'object') {
+  if (doc.author) {
     authorName = doc.author.name || authorName
     let avatarUrl = null
-    if (doc.author.avatar && typeof doc.author.avatar === 'object' && doc.author.avatar.url) {
-      avatarUrl = doc.author.avatar.url
+    const authorImage = doc.author.image || doc.author.avatar
+    if (authorImage) {
+      avatarUrl = urlFor(authorImage).width(96).height(96).url()
     }
 
     authorObj = {
@@ -94,37 +104,37 @@ function transformPayloadDocToArticle(doc: any): ArticleItem {
     }
   }
 
+  // Category
   let categoryObj: CategoryItem | null = null
-  if (doc.category && typeof doc.category === 'object') {
+  if (doc.category) {
     categoryObj = {
-      name: doc.category.name,
-      slug: doc.category.slug,
+      name: doc.category.title || doc.category.name || 'ताज्या घडामोडी',
+      slug: doc.category.slug || 'latest-news',
       badgeColor: doc.category.badgeColor || '#cd0442',
     }
   }
 
+  // Tags — Sanity stores as string[] directly
   let tagsList: string[] = []
   if (Array.isArray(doc.tags)) {
-    tagsList = doc.tags
-      .map((t: any) => (typeof t === 'string' ? t : t?.tag))
-      .filter((t: any): t is string => typeof t === 'string' && t.trim().length > 0)
+    tagsList = doc.tags.filter((t: any): t is string => typeof t === 'string' && t.trim().length > 0)
   }
   if (tagsList.length === 0 && doc.tag) {
     tagsList = [doc.tag, 'महाराष्ट्र', 'ताज्या घडामोडी']
   }
 
   return {
-    id: doc.id,
+    id: doc._id,
     slug: doc.slug,
     title: doc.title,
-    date: formatDate(doc.publishedAt || doc.createdAt),
+    date: formatDate(doc.publishedAt),
     image,
     tag: doc.tag || 'Do Reports',
     tags: tagsList,
     author: authorName,
     authorDetails: authorObj,
-    snippet: doc.snippet,
-    content: doc.content,
+    snippet: doc.excerpt || doc.snippet,
+    content: doc.body || doc.content,
     rawContent: doc.rawContent,
     category: categoryObj,
     section: doc.section,
@@ -133,45 +143,57 @@ function transformPayloadDocToArticle(doc: any): ArticleItem {
   }
 }
 
+// ─── GROQ projection shared by all article/post queries ───────────────────────────
+const articleProjection = `{
+  _id,
+  title,
+  "slug": slug.current,
+  publishedAt,
+  tag,
+  tags,
+  section,
+  isMainStory,
+  isBreaking,
+  "snippet": coalesce(excerpt, snippet),
+  "excerpt": excerpt,
+  rawContent,
+  "content": coalesce(body, content),
+  "body": body,
+  imageUrl,
+  mainImage,
+  authorNameFallback,
+  author->{name, fullName, role, image, avatar, avatarLetter, verified, bio},
+  category->{title, name, "slug": slug.current, badgeColor},
+  views,
+}`
+
 /**
  * Fetch Main Feature Story
  */
 export async function getMainStory(): Promise<ArticleItem> {
-  try {
-    const payload = await getPayload()
-    if (payload) {
-      const result = await payload.find({
-        collection: 'articles',
-        where: {
-          and: [
-            { isMainStory: { equals: true } },
-            { status: { equals: 'published' } },
-          ],
-        },
-        limit: 1,
-        sort: '-publishedAt',
-      })
+  if (isSanityConfigured) {
+    try {
+      const doc = await client.fetch(
+        `*[_type in ["post", "article"] && isMainStory == true && (status == "published" || !defined(status))]
+         | order(publishedAt desc)[0] ${articleProjection}`
+      )
 
-      if (result.docs.length > 0) {
-        return transformPayloadDocToArticle(result.docs[0])
+      if (doc) {
+        return transformSanityDocToArticle(doc)
       }
 
       // If no main story flagged, take most recent published article
-      const fallbackResult = await payload.find({
-        collection: 'articles',
-        where: {
-          status: { equals: 'published' },
-        },
-        limit: 1,
-        sort: '-publishedAt',
-      })
+      const fallbackDoc = await client.fetch(
+        `*[_type in ["post", "article"] && (status == "published" || !defined(status))]
+         | order(publishedAt desc)[0] ${articleProjection}`
+      )
 
-      if (fallbackResult.docs.length > 0) {
-        return transformPayloadDocToArticle(fallbackResult.docs[0])
+      if (fallbackDoc) {
+        return transformSanityDocToArticle(fallbackDoc)
       }
+    } catch (err) {
+      console.error('Error fetching main story from Sanity:', err)
     }
-  } catch (err) {
-    console.error('Error fetching main story from Payload:', err)
   }
 
   return fallbackMainStory as ArticleItem
@@ -181,28 +203,31 @@ export async function getMainStory(): Promise<ArticleItem> {
  * Fetch Top Stories List
  */
 export async function getTopStories(limit = 4): Promise<ArticleItem[]> {
-  try {
-    const payload = await getPayload()
-    if (payload) {
-      const result = await payload.find({
-        collection: 'articles',
-        where: {
-          and: [
-            { section: { equals: 'top-stories' } },
-            { isMainStory: { not_equals: true } },
-            { status: { equals: 'published' } },
-          ],
-        },
-        limit,
-        sort: '-publishedAt',
-      })
+  if (isSanityConfigured) {
+    try {
+      const docs = await client.fetch(
+        `*[_type in ["post", "article"] && section == "top-stories" && isMainStory != true && (status == "published" || !defined(status))]
+         | order(publishedAt desc)[0...$limit] ${articleProjection}`,
+        { limit }
+      )
 
-      if (result.docs.length > 0) {
-        return result.docs.map(transformPayloadDocToArticle)
+      if (docs && docs.length > 0) {
+        return docs.map(transformSanityDocToArticle)
       }
+
+      // If no top-stories section flagged, fallback to recent posts
+      const fallbackDocs = await client.fetch(
+        `*[_type in ["post", "article"] && (status == "published" || !defined(status))]
+         | order(publishedAt desc)[0...$limit] ${articleProjection}`,
+        { limit }
+      )
+
+      if (fallbackDocs && fallbackDocs.length > 0) {
+        return fallbackDocs.map(transformSanityDocToArticle)
+      }
+    } catch (err) {
+      console.error('Error fetching top stories from Sanity:', err)
     }
-  } catch (err) {
-    console.error('Error fetching top stories from Payload:', err)
   }
 
   return fallbackTopStories as ArticleItem[]
@@ -212,27 +237,20 @@ export async function getTopStories(limit = 4): Promise<ArticleItem[]> {
  * Fetch Stories by Section (politics, entertainment, web/welfare, sports, special, etc.)
  */
 export async function getStoriesBySection(section: string, limit = 4): Promise<ArticleItem[]> {
-  try {
-    const payload = await getPayload()
-    if (payload) {
-      const result = await payload.find({
-        collection: 'articles',
-        where: {
-          and: [
-            { section: { equals: section } },
-            { status: { equals: 'published' } },
-          ],
-        },
-        limit,
-        sort: '-publishedAt',
-      })
+  if (isSanityConfigured) {
+    try {
+      const docs = await client.fetch(
+        `*[_type in ["post", "article"] && (section == $section || category->slug.current == $section) && (status == "published" || !defined(status))]
+         | order(publishedAt desc)[0...$limit] ${articleProjection}`,
+        { section, limit }
+      )
 
-      if (result.docs.length > 0) {
-        return result.docs.map(transformPayloadDocToArticle)
+      if (docs && docs.length > 0) {
+        return docs.map(transformSanityDocToArticle)
       }
+    } catch (err) {
+      console.error(`Error fetching section ${section} from Sanity:`, err)
     }
-  } catch (err) {
-    console.error(`Error fetching section ${section} from Payload:`, err)
   }
 
   // Fallback mappings
@@ -258,23 +276,19 @@ export async function getStoriesBySection(section: string, limit = 4): Promise<A
  * Fetch Single Article By Slug
  */
 export async function getArticleBySlug(slug: string): Promise<ArticleItem | undefined> {
-  try {
-    const payload = await getPayload()
-    if (payload) {
-      const result = await payload.find({
-        collection: 'articles',
-        where: {
-          slug: { equals: slug },
-        },
-        limit: 1,
-      })
+  if (isSanityConfigured) {
+    try {
+      const doc = await client.fetch(
+        `*[_type in ["post", "article"] && slug.current == $slug][0] ${articleProjection}`,
+        { slug }
+      )
 
-      if (result.docs.length > 0) {
-        return transformPayloadDocToArticle(result.docs[0])
+      if (doc) {
+        return transformSanityDocToArticle(doc)
       }
+    } catch (err) {
+      console.error(`Error fetching article [${slug}] from Sanity:`, err)
     }
-  } catch (err) {
-    console.error(`Error fetching article [${slug}] from Payload:`, err)
   }
 
   const mock = fallbackGetArticleBySlug(slug)
@@ -285,48 +299,35 @@ export async function getArticleBySlug(slug: string): Promise<ArticleItem | unde
  * Fetch Articles for a Category with Pagination
  */
 export async function getArticlesByCategory(categorySlug: string, page = 1, limit = 10) {
-  try {
-    const payload = await getPayload()
-    if (payload) {
-      // Find category ID first
-      const catRes = await payload.find({
-        collection: 'categories',
-        where: {
-          slug: { equals: categorySlug },
-        },
-        limit: 1,
-      })
+  if (isSanityConfigured) {
+    try {
+      const start = (page - 1) * limit
+      const end = start + limit
 
-      const whereClause: any = {
-        status: { equals: 'published' },
-      }
+      // Try matching by category reference slug first, then by section
+      const docs = await client.fetch(
+        `{
+          "docs": *[_type in ["post", "article"] && (status == "published" || !defined(status)) && (
+            category->slug.current == $categorySlug || section == $categorySlug
+          )] | order(publishedAt desc)[$start...$end] ${articleProjection},
+          "total": count(*[_type in ["post", "article"] && (status == "published" || !defined(status)) && (
+            category->slug.current == $categorySlug || section == $categorySlug
+          )])
+        }`,
+        { categorySlug, start, end }
+      )
 
-      if (catRes.docs.length > 0) {
-        whereClause.category = { equals: catRes.docs[0].id }
-      } else {
-        // Match section slug as fallback
-        whereClause.section = { equals: categorySlug }
-      }
-
-      const result = await payload.find({
-        collection: 'articles',
-        where: whereClause,
-        page,
-        limit,
-        sort: '-publishedAt',
-      })
-
-      if (result.docs.length > 0) {
+      if (docs.docs && docs.docs.length > 0) {
         return {
-          docs: result.docs.map(transformPayloadDocToArticle),
-          totalDocs: result.totalDocs,
-          totalPages: result.totalPages,
-          page: result.page,
+          docs: docs.docs.map(transformSanityDocToArticle),
+          totalDocs: docs.total,
+          totalPages: Math.ceil(docs.total / limit) || 1,
+          page,
         }
       }
+    } catch (err) {
+      console.error(`Error fetching category [${categorySlug}] from Sanity:`, err)
     }
-  } catch (err) {
-    console.error(`Error fetching category [${categorySlug}] from Payload:`, err)
   }
 
   // Mock data fallback for category
@@ -361,40 +362,34 @@ export async function searchArticles(query: string, page = 1, limit = 10) {
     }
   }
 
-  try {
-    const payload = await getPayload()
-    if (payload) {
-      const result = await payload.find({
-        collection: 'articles',
-        where: {
-          and: [
-            { status: { equals: 'published' } },
-            {
-              or: [
-                { title: { like: trimmed } },
-                { snippet: { like: trimmed } },
-                { rawContent: { like: trimmed } },
-                { tag: { like: trimmed } },
-              ],
-            },
-          ],
-        },
-        page,
-        limit,
-        sort: '-publishedAt',
-      })
+  if (isSanityConfigured) {
+    try {
+      const start = (page - 1) * limit
+      const end = start + limit
 
-      if (result.docs.length > 0) {
+      const result = await client.fetch(
+        `{
+          "docs": *[_type in ["post", "article"] && (status == "published" || !defined(status)) && (
+            title match $q || excerpt match $q || snippet match $q || rawContent match $q || tag match $q
+          )] | order(publishedAt desc)[$start...$end] ${articleProjection},
+          "total": count(*[_type in ["post", "article"] && (status == "published" || !defined(status)) && (
+            title match $q || excerpt match $q || snippet match $q || rawContent match $q || tag match $q
+          )])
+        }`,
+        { q: `${trimmed}*`, start, end }
+      )
+
+      if (result.docs && result.docs.length > 0) {
         return {
-          docs: result.docs.map(transformPayloadDocToArticle),
-          totalDocs: result.totalDocs,
-          totalPages: result.totalPages,
-          page: result.page,
+          docs: result.docs.map(transformSanityDocToArticle),
+          totalDocs: result.total,
+          totalPages: Math.ceil(result.total / limit) || 1,
+          page,
         }
       }
+    } catch (err) {
+      console.error('Error searching articles in Sanity:', err)
     }
-  } catch (err) {
-    console.error('Error searching articles in Payload:', err)
   }
 
   // Fallback search in mock data
@@ -429,18 +424,23 @@ export async function searchArticles(query: string, page = 1, limit = 10) {
  * Fetch All Categories
  */
 export async function getCategories() {
-  try {
-    const payload = await getPayload()
-    if (payload) {
-      const result = await payload.find({
-        collection: 'categories',
-        sort: 'order',
-        limit: 50,
-      })
+  if (isSanityConfigured) {
+    try {
+      const docs = await client.fetch(
+        `*[_type == "category"] | order(order asc) {
+          _id,
+          "name": coalesce(title, name),
+          "title": coalesce(title, name),
+          "slug": slug.current,
+          order,
+          showInNavbar,
+          badgeColor,
+        }`
+      )
 
-      if (result.docs.length > 0) {
-        return result.docs.map((c: any) => ({
-          id: c.id,
+      if (docs && docs.length > 0) {
+        return docs.map((c: any) => ({
+          id: c._id,
           name: c.name,
           slug: c.slug,
           order: c.order,
@@ -448,9 +448,9 @@ export async function getCategories() {
           badgeColor: c.badgeColor,
         }))
       }
+    } catch (err) {
+      console.error('Error fetching categories from Sanity:', err)
     }
-  } catch (err) {
-    console.error('Error fetching categories from Payload:', err)
   }
 
   return [

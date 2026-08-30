@@ -6,7 +6,7 @@ import {
   getStoriesBySection 
 } from "@/lib/api";
 
-// Render at request time, not at build time — prevents Supabase pool exhaustion during `next build`
+// Dynamic rendering for real-time news updates
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
