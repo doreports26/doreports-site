@@ -1,4 +1,5 @@
 import { defineType, defineField } from 'sanity'
+import { marathiSlugify } from '../slugUtils'
 
 export const article = defineType({
   name: 'article',
@@ -18,6 +19,7 @@ export const article = defineType({
       options: {
         source: 'title',
         maxLength: 96,
+        slugify: (input: string) => marathiSlugify(input),
       },
       validation: (rule) => rule.required().error('Slug is required'),
     }),

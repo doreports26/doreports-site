@@ -276,18 +276,30 @@ export async function getStoriesBySection(section: string, limit = 4): Promise<A
  * Fetch Single Article By Slug
  */
 export async function getArticleBySlug(slug: string): Promise<ArticleItem | undefined> {
+  // Decode percent-encoded URL slug (e.g. %20 → space)
+  const decodedSlug = decodeURIComponent(slug)
+
   if (isSanityConfigured) {
     try {
-      const doc = await client.fetch(
+      // 1. Exact match (fastest — handles properly slugified articles)
+      let doc = await client.fetch(
         `*[_type in ["post", "article"] && slug.current == $slug][0] ${articleProjection}`,
-        { slug }
+        { slug: decodedSlug }
       )
+
+      // 2. Case-insensitive fallback (handles "Sundays for Kalyan..." style slugs)
+      if (!doc) {
+        doc = await client.fetch(
+          `*[_type in ["post", "article"] && lower(slug.current) == lower($slug)][0] ${articleProjection}`,
+          { slug: decodedSlug }
+        )
+      }
 
       if (doc) {
         return transformSanityDocToArticle(doc)
       }
     } catch (err) {
-      console.error(`Error fetching article [${slug}] from Sanity:`, err)
+      console.error(`Error fetching article [${decodedSlug}] from Sanity:`, err)
     }
   }
 
