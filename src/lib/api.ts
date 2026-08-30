@@ -1,4 +1,4 @@
-import { client, isSanityConfigured } from '@/sanity/client'
+import { client, getSanityClient, isSanityConfigured } from '@/sanity/client'
 import { urlFor } from '@/sanity/image'
 
 export interface AuthorItem {
@@ -258,22 +258,28 @@ export async function getStoriesBySection(section: string, limit = 4): Promise<A
 
 /**
  * Fetch Single Article By Slug from Sanity (with decoding and case-insensitive fallback).
+ * Supports draft mode to fetch unpublished articles or preview draft edits.
  */
-export async function getArticleBySlug(slug: string): Promise<ArticleItem | null> {
+export async function getArticleBySlug(
+  slug: string,
+  options?: { isDraftMode?: boolean }
+): Promise<ArticleItem | null> {
   const decodedSlug = decodeURIComponent(slug)
+  const isDraft = Boolean(options?.isDraftMode)
+  const fetchClient = isDraft ? getSanityClient({ isDraftMode: true }) : client
 
   if (isSanityConfigured) {
     try {
-      // 1. Exact match (fastest)
-      let doc = await client.fetch(
-        `*[_type in ["post", "article"] && slug.current == $slug][0] ${articleProjection}`,
+      // 1. Exact match (prioritizing latest modified draft if draft mode is enabled)
+      let doc = await fetchClient.fetch(
+        `*[_type in ["post", "article"] && slug.current == $slug] | order(_updatedAt desc)[0] ${articleProjection}`,
         { slug: decodedSlug }
       )
 
       // 2. Case-insensitive fallback
       if (!doc) {
-        doc = await client.fetch(
-          `*[_type in ["post", "article"] && lower(slug.current) == lower($slug)][0] ${articleProjection}`,
+        doc = await fetchClient.fetch(
+          `*[_type in ["post", "article"] && lower(slug.current) == lower($slug)] | order(_updatedAt desc)[0] ${articleProjection}`,
           { slug: decodedSlug }
         )
       }

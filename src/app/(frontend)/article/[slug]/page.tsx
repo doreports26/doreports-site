@@ -1,9 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { draftMode } from "next/headers";
 import { getArticleBySlug, getTopStories } from "@/lib/api";
 import { LatestNewsWidget } from "@/components/LatestNewsWidget";
 import { ArticleShareButtons } from "@/components/ArticleShareButtons";
 import { RichTextRenderer } from "@/components/RichTextRenderer";
+import { DraftModeBar } from "@/components/DraftModeBar";
 import { Zap, BadgeCheck, Copy, Clock, Calendar, Eye } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -55,8 +57,9 @@ export default async function ArticlePage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  const { isEnabled: isDraftMode } = await draftMode();
   const { slug } = await params;
-  const article = await getArticleBySlug(slug);
+  const article = await getArticleBySlug(slug, { isDraftMode });
 
   if (!article) {
     notFound();
@@ -77,8 +80,10 @@ export default async function ArticlePage({
   const categorySlug = article.category?.slug || article.section || "latest-news";
 
   return (
-    <main className="min-h-screen bg-white text-gray-900 pb-20 font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 md:pt-8">
+    <>
+      {isDraftMode && <DraftModeBar slug={slug} />}
+      <main className="min-h-screen bg-white text-gray-900 pb-20 font-sans">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 md:pt-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 md:gap-10 items-start relative">
           
           {/* Left Column (Main Content) */}
@@ -299,5 +304,6 @@ export default async function ArticlePage({
         </div>
       </div>
     </main>
+    </>
   );
 }
