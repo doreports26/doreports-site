@@ -247,33 +247,38 @@ export default async function ArticlePage({
             </div>
 
             {/* Latest Stories Grid */}
-            <div className="flex flex-col mb-8 pt-4">
-              <div className="flex items-center gap-2 mb-6">
-                <Copy className="w-5 h-5 text-gray-800" />
-                <h3 className="text-[22px] font-bold text-gray-900">Latest Stories</h3>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                {latestStories.map((story, idx) => (
-                  <Link href={`/article/${story.slug}`} key={idx}>
-                    <div className="flex flex-col group cursor-pointer gap-3">
-                      <div className="w-full aspect-[16/10] bg-gray-200 overflow-hidden relative rounded-lg">
-                        <img 
-                          src={story.image} 
-                          alt={story.title} 
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                        <div className="absolute top-0 right-0 bg-[#cd0442] text-white text-[10px] px-2 py-0.5 font-bold rounded-bl-sm">
-                          {story.tag || "Do Reports"}
+            {latestStories.filter((s) => s.slug !== article.slug).length > 0 && (
+              <div className="flex flex-col mb-8 pt-4">
+                <div className="flex items-center gap-2 mb-6">
+                  <Copy className="w-5 h-5 text-gray-800" />
+                  <h3 className="text-[22px] font-bold text-gray-900">Latest Stories</h3>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                  {latestStories
+                    .filter((s) => s.slug !== article.slug)
+                    .slice(0, 3)
+                    .map((story, idx) => (
+                      <Link href={`/article/${story.slug}`} key={story.slug || idx}>
+                        <div className="flex flex-col group cursor-pointer gap-3">
+                          <div className="w-full aspect-[16/10] bg-gray-200 overflow-hidden relative rounded-lg">
+                            <img 
+                              src={story.image} 
+                              alt={story.title} 
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                            <div className="absolute top-0 right-0 bg-[#cd0442] text-white text-[10px] px-2 py-0.5 font-bold rounded-bl-sm">
+                              {story.tag || "Do Reports"}
+                            </div>
+                          </div>
+                          <h4 className="font-bold text-gray-900 text-[14px] leading-[1.4] group-hover:text-[#cd0442] transition-colors line-clamp-3">
+                            {story.title}
+                          </h4>
                         </div>
-                      </div>
-                      <h4 className="font-bold text-gray-900 text-[14px] leading-[1.4] group-hover:text-[#cd0442] transition-colors line-clamp-3">
-                        {story.title}
-                      </h4>
-                    </div>
-                  </Link>
-                ))}
+                      </Link>
+                    ))}
+                </div>
               </div>
-            </div>
+            )}
 
           </div>
           

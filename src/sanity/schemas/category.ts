@@ -18,7 +18,7 @@ export const category = defineType({
       type: 'slug',
       options: {
         source: 'title',
-        maxLength: 96,
+        maxLength: 200,
         slugify: (input: string) => marathiSlugify(input),
       },
       validation: (rule) => rule.required(),

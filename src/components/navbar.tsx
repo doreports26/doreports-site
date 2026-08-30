@@ -428,10 +428,10 @@ export function Navbar() {
               </div>
 
               <h2 className="text-3xl xl:text-4xl font-bold leading-tight mb-4">
-                कल्याण-डोंबिवलीत मुसळधार पाऊस, जनजीवन विस्कळीत
+                Do Reports — आवाज महाराष्ट्राचा
               </h2>
               <p className="text-white/85 text-sm xl:text-base mb-8 leading-relaxed line-clamp-4">
-                हवामान खात्याने दिलेल्या इशाऱ्यानुसार आज सकाळपासूनच कल्याण आणि डोंबिवली परिसरात जोरदार पावसाला सुरुवात झाली आहे. अनेक सखल भागात पाणी साचण्यास सुरुवात झाली असून वाहतुकीवर मोठा परिणाम झाला आहे...
+                कल्याण-डोंबिवली, ठाणे आणि संपूर्ण महाराष्ट्रातील ताज्या, निष्पक्ष आणि विश्वासार्ह बातम्यांचे एकमेव व्यासपीठ. सत्य आणि पारदर्शक पत्रकारिता.
               </p>
 
               <Link
@@ -439,7 +439,7 @@ export function Navbar() {
                 onClick={() => setIsSearchOpen(false)}
                 className="inline-flex items-center space-x-3 text-xs font-bold uppercase tracking-widest bg-white text-[#090909] px-6 py-3.5 rounded-sm hover:bg-[#f72e06] hover:text-white transition-colors duration-300 shadow-xl"
               >
-                <span>Read Full Story</span>
+                <span>सर्व ताज्या बातम्या पहा</span>
                 <span className="text-lg leading-none">→</span>
               </Link>
             </div>
