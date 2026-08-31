@@ -101,8 +101,8 @@ export function Footer() {
             </h3>
             <ul className="flex flex-col gap-4 text-[14px] font-medium text-gray-400">
               {[
-                { name: 'About Us', href: '#' },
-                { name: 'Contact Us', href: '#' },
+                { name: 'About Us', href: '/about' },
+                { name: 'Contact Us', href: '/contact' },
                 { name: 'Disclaimer', href: '/disclaimer' },
                 { name: 'Privacy Policy', href: '/privacy-policy' },
               ].map((link) => (

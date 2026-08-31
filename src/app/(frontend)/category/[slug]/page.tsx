@@ -1,23 +1,15 @@
 import Link from "next/link";
 import { LatestNewsWidget } from "@/components/LatestNewsWidget";
 import { Pagination } from "@/components/Pagination";
-import { getArticlesByCategory } from "@/lib/api";
+import { getArticlesByCategory, getCategoryDetails } from "@/lib/api";
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic'
 
-const categoryTitles: Record<string, string> = {
-  "latest-news": "Latest News",
-  "kalyan-dombivli": "कल्याण- डोंबिवली (KDMC)",
-  important: "महत्वाचे",
-  special: "विशेष",
-  welfare: "Welfare",
-  education: "शिक्षण",
-};
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const title = categoryTitles[slug] || "Category";
+  const details = await getCategoryDetails(slug);
+  const title = details?.title || "Category";
   return {
     title: `${title} बातम्या | Do Reports`,
     description: `Read the latest updates and breaking news for ${title} on Do Reports.`,
@@ -33,10 +25,11 @@ export default async function CategoryPage({
 }) {
   const { slug } = await params;
   const resolvedSearchParams = await searchParams;
-  const title = categoryTitles[slug] || slug.replace('-', ' ').toUpperCase();
+  const categoryDetails = await getCategoryDetails(slug);
+  const title = categoryDetails?.title || slug.replace(/-/g, ' ').toUpperCase();
   const currentPage = resolvedSearchParams.page ? parseInt(resolvedSearchParams.page, 10) : 1;
   
-  const { docs: articles, totalPages } = await getArticlesByCategory(slug, currentPage, 6);
+  const { docs: articles, totalPages, totalDocs } = await getArticlesByCategory(slug, currentPage, 6);
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 py-8 font-sans">

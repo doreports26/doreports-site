@@ -19,7 +19,7 @@ export default async function Home() {
     ? rawTopStories.filter((s) => s.slug !== mainStory.slug)
     : rawTopStories;
 
-  const politicsStories = await getStoriesBySection('politics', 4);
+  const politicsStories = await getStoriesBySection('kalyan-dombivli', 4);
   const entertainmentStories = await getStoriesBySection('important', 4);
   const specialStories = await getStoriesBySection('special', 4);
   const webStories = await getStoriesBySection('welfare', 4);

@@ -141,6 +141,27 @@ function transformSanityDocToArticle(doc: any): ArticleItem {
   }
 }
 
+// ─── Slug Aliases Mapping ────────────────────────────────────────────────────────
+export const CATEGORY_SLUG_ALIASES: Record<string, string[]> = {
+  'kalyan-dombivli': ['kalyan-dombivli', 'kdmc', 'kalyan', 'dombivli', 'politics'],
+  'kdmc': ['kdmc', 'kalyan-dombivli', 'kalyan', 'dombivli', 'politics'],
+  'important': ['important', 'trending', 'mahatvache', 'महत्वाचे'],
+  'trending': ['trending', 'important', 'mahatvache', 'महत्वाचे'],
+  'special': ['special', 'special-report', 'vishesh', 'विशेष'],
+  'special-report': ['special-report', 'special', 'vishesh', 'विशेष'],
+  'welfare': ['welfare', 'social', 'कल्याण'],
+  'education': ['education', 'shikshan', 'शिक्षण', 'sports'],
+  'latest-news': ['latest-news', 'latest', 'top-stories', 'all'],
+}
+
+export function resolveCategorySlugs(slug: string): string[] {
+  const normalized = (slug || '').toLowerCase().trim()
+  if (CATEGORY_SLUG_ALIASES[normalized]) {
+    return CATEGORY_SLUG_ALIASES[normalized]
+  }
+  return [normalized, slug]
+}
+
 // ─── GROQ projection shared by all article/post queries ───────────────────────────
 const articleProjection = `{
   _id,
@@ -173,7 +194,7 @@ export async function getMainStory(): Promise<ArticleItem | null> {
   if (isSanityConfigured) {
     try {
       const doc = await client.fetch(
-        `*[_type in ["post", "article"] && isMainStory == true && (status == "published" || !defined(status))]
+        `*[_type in ["post", "article"] && isMainStory == true && (status == "published" || !defined(status) || status == null)]
          | order(publishedAt desc)[0] ${articleProjection}`
       )
 
@@ -183,7 +204,7 @@ export async function getMainStory(): Promise<ArticleItem | null> {
 
       // If no article is explicitly marked as main story, take the most recent published article
       const fallbackDoc = await client.fetch(
-        `*[_type in ["post", "article"] && (status == "published" || !defined(status))]
+        `*[_type in ["post", "article"] && (status == "published" || !defined(status) || status == null)]
          | order(publishedAt desc)[0] ${articleProjection}`
       )
 
@@ -206,7 +227,7 @@ export async function getTopStories(limit = 4): Promise<ArticleItem[]> {
     try {
       // 1. Try section == "top-stories"
       const docs = await client.fetch(
-        `*[_type in ["post", "article"] && section == "top-stories" && isMainStory != true && (status == "published" || !defined(status))]
+        `*[_type in ["post", "article"] && section == "top-stories" && isMainStory != true && (status == "published" || !defined(status) || status == null)]
          | order(publishedAt desc)[0...$limit] ${articleProjection}`,
         { limit }
       )
@@ -217,7 +238,7 @@ export async function getTopStories(limit = 4): Promise<ArticleItem[]> {
 
       // 2. If no dedicated top-stories, return the most recent published articles
       const fallbackDocs = await client.fetch(
-        `*[_type in ["post", "article"] && (status == "published" || !defined(status))]
+        `*[_type in ["post", "article"] && (status == "published" || !defined(status) || status == null)]
          | order(publishedAt desc)[0...$limit] ${articleProjection}`,
         { limit }
       )
@@ -234,15 +255,19 @@ export async function getTopStories(limit = 4): Promise<ArticleItem[]> {
 }
 
 /**
- * Fetch Stories by Section (politics, important, welfare, sports, education, special, etc.)
+ * Fetch Stories by Section / Category with flexible slug matching.
  */
 export async function getStoriesBySection(section: string, limit = 4): Promise<ArticleItem[]> {
   if (isSanityConfigured) {
     try {
+      const slugs = resolveCategorySlugs(section)
       const docs = await client.fetch(
-        `*[_type in ["post", "article"] && (section == $section || category->slug.current == $section) && (status == "published" || !defined(status))]
-         | order(publishedAt desc)[0...$limit] ${articleProjection}`,
-        { section, limit }
+        `*[_type in ["post", "article"] && (status == "published" || !defined(status) || status == null) && (
+          category->slug.current in $slugs ||
+          section in $slugs ||
+          lower(tag) in $slugs
+        )] | order(publishedAt desc)[0...$limit] ${articleProjection}`,
+        { slugs, limit }
       )
 
       if (docs && docs.length > 0) {
@@ -296,24 +321,100 @@ export async function getArticleBySlug(
 }
 
 /**
+ * Fetch Category Details (title, badgeColor, description) from Sanity or defaults.
+ */
+export async function getCategoryDetails(slug: string): Promise<{ title: string; badgeColor?: string; description?: string } | null> {
+  const defaultTitles: Record<string, string> = {
+    "latest-news": "Latest News",
+    "kalyan-dombivli": "कल्याण- डोंबिवली (KDMC)",
+    "kdmc": "कल्याण- डोंबिवली (KDMC)",
+    "important": "महत्वाचे",
+    "trending": "महत्वाचे",
+    "special": "विशेष",
+    "special-report": "विशेष",
+    "welfare": "Welfare",
+    "education": "शिक्षण",
+  }
+
+  if (isSanityConfigured) {
+    try {
+      const slugs = resolveCategorySlugs(slug)
+      const doc = await client.fetch(
+        `*[_type == "category" && slug.current in $slugs][0]{
+          "title": coalesce(title, name),
+          badgeColor,
+          description
+        }`,
+        { slugs }
+      )
+
+      if (doc && doc.title) {
+        return {
+          title: doc.title.trim(),
+          badgeColor: doc.badgeColor,
+          description: doc.description,
+        }
+      }
+    } catch (err) {
+      console.error(`Error fetching category details for [${slug}]:`, err)
+    }
+  }
+
+  const fallbackTitle = defaultTitles[slug] || defaultTitles[slug.toLowerCase()] || slug.replace(/-/g, ' ').toUpperCase()
+  return {
+    title: fallbackTitle,
+  }
+}
+
+/**
  * Fetch Articles for a Category with Pagination from Sanity.
+ * Supports all slug aliases (e.g. kalyan-dombivli & kdmc, important & trending, etc.)
  */
 export async function getArticlesByCategory(categorySlug: string, page = 1, limit = 10) {
   if (isSanityConfigured) {
     try {
       const start = (page - 1) * limit
       const end = start + limit
+      const normalized = categorySlug.toLowerCase().trim()
+
+      // If requested slug is "latest-news", return all published articles in chronological order
+      if (normalized === 'latest-news' || normalized === 'latest' || normalized === 'all') {
+        const result = await client.fetch(
+          `{
+            "docs": *[_type in ["post", "article"] && (status == "published" || !defined(status) || status == null)]
+              | order(publishedAt desc)[$start...$end] ${articleProjection},
+            "total": count(*[_type in ["post", "article"] && (status == "published" || !defined(status) || status == null)])
+          }`,
+          { start, end }
+        )
+
+        if (result && result.docs) {
+          return {
+            docs: result.docs.map(transformSanityDocToArticle),
+            totalDocs: result.total || 0,
+            totalPages: Math.ceil((result.total || 0) / limit) || 1,
+            page,
+          }
+        }
+      }
+
+      // For specific category, match against all related aliases
+      const slugs = resolveCategorySlugs(categorySlug)
 
       const result = await client.fetch(
         `{
-          "docs": *[_type in ["post", "article"] && (status == "published" || !defined(status)) && (
-            category->slug.current == $categorySlug || section == $categorySlug
+          "docs": *[_type in ["post", "article"] && (status == "published" || !defined(status) || status == null) && (
+            category->slug.current in $slugs ||
+            section in $slugs ||
+            lower(tag) in $slugs
           )] | order(publishedAt desc)[$start...$end] ${articleProjection},
-          "total": count(*[_type in ["post", "article"] && (status == "published" || !defined(status)) && (
-            category->slug.current == $categorySlug || section == $categorySlug
+          "total": count(*[_type in ["post", "article"] && (status == "published" || !defined(status) || status == null) && (
+            category->slug.current in $slugs ||
+            section in $slugs ||
+            lower(tag) in $slugs
           )])
         }`,
-        { categorySlug, start, end }
+        { slugs, start, end }
       )
 
       if (result && result.docs) {
@@ -358,10 +459,10 @@ export async function searchArticles(query: string, page = 1, limit = 10) {
 
       const result = await client.fetch(
         `{
-          "docs": *[_type in ["post", "article"] && (status == "published" || !defined(status)) && (
+          "docs": *[_type in ["post", "article"] && (status == "published" || !defined(status) || status == null) && (
             title match $q || excerpt match $q || snippet match $q || rawContent match $q || tag match $q
           )] | order(publishedAt desc)[$start...$end] ${articleProjection},
-          "total": count(*[_type in ["post", "article"] && (status == "published" || !defined(status)) && (
+          "total": count(*[_type in ["post", "article"] && (status == "published" || !defined(status) || status == null) && (
             title match $q || excerpt match $q || snippet match $q || rawContent match $q || tag match $q
           )])
         }`,
@@ -410,7 +511,7 @@ export async function getCategories() {
       if (docs && docs.length > 0) {
         return docs.map((c: any) => ({
           id: c._id,
-          name: c.name,
+          name: c.name?.trim(),
           slug: c.slug,
           order: c.order,
           showInNavbar: c.showInNavbar,
