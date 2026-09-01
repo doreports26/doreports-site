@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LatestNewsWidget } from "@/components/LatestNewsWidget";
 import { Pagination } from "@/components/Pagination";
 import { searchArticles } from "@/lib/api";
+import { SearchTracker } from "@/components/analytics/SearchTracker";
 import { Search as SearchIcon, AlertCircle, ArrowRight } from "lucide-react";
 import type { Metadata } from 'next';
 
@@ -33,6 +34,7 @@ export default async function SearchPage({
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 py-8 font-sans">
+      <SearchTracker query={query} totalDocs={totalDocs} />
       {/* Search Header Banner */}
       <div className="bg-gradient-to-r from-gray-900 via-gray-800 to-black text-white rounded-2xl p-6 md:p-10 mb-10 shadow-lg relative overflow-hidden">
         <div className="absolute right-0 top-0 w-96 h-96 bg-[#cd0442] opacity-10 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2 pointer-events-none" />

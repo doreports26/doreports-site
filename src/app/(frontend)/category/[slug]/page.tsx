@@ -2,6 +2,7 @@ import Link from "next/link";
 import { LatestNewsWidget } from "@/components/LatestNewsWidget";
 import { Pagination } from "@/components/Pagination";
 import { getArticlesByCategory, getCategoryDetails } from "@/lib/api";
+import { CategoryTracker } from "@/components/analytics/CategoryTracker";
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic'
@@ -33,6 +34,12 @@ export default async function CategoryPage({
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 py-8 font-sans">
+      <CategoryTracker
+        slug={slug}
+        title={title}
+        currentPage={currentPage}
+        totalArticles={totalDocs}
+      />
 
       {/* Category Header */}
       <div className="flex items-center justify-between mb-10 border-b-2 border-gray-100 pb-4 mt-2">

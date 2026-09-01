@@ -6,6 +6,8 @@ import { LatestNewsWidget } from "@/components/LatestNewsWidget";
 import { ArticleShareButtons } from "@/components/ArticleShareButtons";
 import { RichTextRenderer } from "@/components/RichTextRenderer";
 import { DraftModeBar } from "@/components/DraftModeBar";
+import { ArticleTracker } from "@/components/analytics/ArticleTracker";
+import { WhatsAppChannelButton } from "@/components/WhatsAppChannelButton";
 import { Zap, BadgeCheck, Copy, Clock, Calendar, Eye } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -78,9 +80,21 @@ export default async function ArticlePage({
 
   const categoryName = article.category?.name || article.tag || "ताज्या घडामोडी";
   const categorySlug = article.category?.slug || article.section || "latest-news";
+  const wordCount = typeof article.rawContent === 'string'
+    ? article.rawContent.split(/\s+/).filter(Boolean).length
+    : article.content ? JSON.stringify(article.content).split(/\s+/).length : 0;
 
   return (
     <>
+      <ArticleTracker
+        slug={slug}
+        title={article.title}
+        category={categoryName}
+        author={author.fullName || author.name}
+        date={article.date}
+        tags={article.tags || []}
+        wordCount={wordCount}
+      />
       {isDraftMode && <DraftModeBar slug={slug} />}
       <main className="min-h-screen bg-white text-gray-900 pb-20 font-sans">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4 md:pt-8">
@@ -241,14 +255,7 @@ export default async function ArticlePage({
                   <p className="text-gray-500 text-xs">ताज्या बातम्या थेट तुमच्या WhatsApp वर मिळवा</p>
                 </div>
               </div>
-              <a
-                href="https://whatsapp.com/channel/0029Va9W8X69hXFBzBvM2O3k"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center bg-[#22c55e] text-white px-6 py-2.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-[#16a34a] active:scale-95 transition-all w-full sm:w-auto shadow-sm"
-              >
-                Join Channel
-              </a>
+              <WhatsAppChannelButton source="article_bottom_banner" />
             </div>
 
             {/* Latest Stories Grid */}

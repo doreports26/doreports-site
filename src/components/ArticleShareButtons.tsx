@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Share2, Check, Copy, MessageCircle, Send } from "lucide-react";
+import { trackShare } from "@/lib/gtag";
 
 interface ArticleShareProps {
   title: string;
@@ -29,6 +30,15 @@ export function ArticleShareButtons({ title, slug, variant = "top-compact" }: Ar
     telegram: `https://t.me/share/url?url=${encodedUrl}&text=${encodedTitle}`,
   };
 
+  const handleShareClick = (platform: "whatsapp" | "facebook" | "twitter" | "telegram") => {
+    trackShare({
+      method: platform,
+      content_type: "article",
+      item_id: slug,
+      item_name: title,
+    });
+  };
+
   const handleNativeShareOrCopy = async (e: React.MouseEvent) => {
     e.preventDefault();
 
@@ -38,6 +48,12 @@ export function ArticleShareButtons({ title, slug, variant = "top-compact" }: Ar
           title,
           text: title,
           url: shareUrl,
+        });
+        trackShare({
+          method: "native_share",
+          content_type: "article",
+          item_id: slug,
+          item_name: title,
         });
         return;
       } catch (err: any) {
@@ -58,6 +74,12 @@ export function ArticleShareButtons({ title, slug, variant = "top-compact" }: Ar
         document.execCommand("copy");
         document.body.removeChild(textarea);
       }
+      trackShare({
+        method: "copy_link",
+        content_type: "article",
+        item_id: slug,
+        item_name: title,
+      });
       setCopied(true);
       setTimeout(() => setCopied(false), 2500);
     } catch (err) {
@@ -71,6 +93,7 @@ export function ArticleShareButtons({ title, slug, variant = "top-compact" }: Ar
         {/* Facebook */}
         <a
           href={shareLinks.facebook}
+          onClick={() => handleShareClick("facebook")}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Share on Facebook"
@@ -84,6 +107,7 @@ export function ArticleShareButtons({ title, slug, variant = "top-compact" }: Ar
         {/* X / Twitter */}
         <a
           href={shareLinks.twitter}
+          onClick={() => handleShareClick("twitter")}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Share on X (Twitter)"
@@ -97,6 +121,7 @@ export function ArticleShareButtons({ title, slug, variant = "top-compact" }: Ar
         {/* WhatsApp */}
         <a
           href={shareLinks.whatsapp}
+          onClick={() => handleShareClick("whatsapp")}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Share on WhatsApp"
@@ -142,6 +167,7 @@ export function ArticleShareButtons({ title, slug, variant = "top-compact" }: Ar
         {/* Facebook */}
         <a
           href={shareLinks.facebook}
+          onClick={() => handleShareClick("facebook")}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Share on Facebook"
@@ -156,6 +182,7 @@ export function ArticleShareButtons({ title, slug, variant = "top-compact" }: Ar
         {/* X / Twitter */}
         <a
           href={shareLinks.twitter}
+          onClick={() => handleShareClick("twitter")}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Share on X (Twitter)"
@@ -170,6 +197,7 @@ export function ArticleShareButtons({ title, slug, variant = "top-compact" }: Ar
         {/* WhatsApp */}
         <a
           href={shareLinks.whatsapp}
+          onClick={() => handleShareClick("whatsapp")}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Share on WhatsApp"
@@ -184,6 +212,7 @@ export function ArticleShareButtons({ title, slug, variant = "top-compact" }: Ar
         {/* Telegram */}
         <a
           href={shareLinks.telegram}
+          onClick={() => handleShareClick("telegram")}
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Share on Telegram"
