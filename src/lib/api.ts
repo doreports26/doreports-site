@@ -145,6 +145,10 @@ function transformSanityDocToArticle(doc: any): ArticleItem {
 export const CATEGORY_SLUG_ALIASES: Record<string, string[]> = {
   'kalyan-dombivli': ['kalyan-dombivli', 'kdmc', 'kalyan', 'dombivli', 'politics'],
   'kdmc': ['kdmc', 'kalyan-dombivli', 'kalyan', 'dombivli', 'politics'],
+  'jawhar-palghar': ['jawhar-palghar', 'jawhar', 'palghar', 'जव्हार-पालघर', 'जव्हार', 'पालघर'],
+  'jawhar': ['jawhar', 'jawhar-palghar', 'palghar', 'जव्हार-पालघर', 'जव्हार'],
+  'palghar': ['palghar', 'jawhar-palghar', 'jawhar', 'जव्हार-पालघर', 'पालघर'],
+  'जव्हार-पालघर': ['जव्हार-पालघर', 'jawhar-palghar', 'jawhar', 'palghar', 'जव्हार', 'पालघर'],
   'important': ['important', 'trending', 'mahatvache', 'महत्वाचे'],
   'trending': ['trending', 'important', 'mahatvache', 'महत्वाचे'],
   'special': ['special', 'special-report', 'vishesh', 'विशेष'],
@@ -328,6 +332,10 @@ export async function getCategoryDetails(slug: string): Promise<{ title: string;
     "latest-news": "Latest News",
     "kalyan-dombivli": "कल्याण- डोंबिवली (KDMC)",
     "kdmc": "कल्याण- डोंबिवली (KDMC)",
+    "jawhar-palghar": "जव्हार-पालघर",
+    "jawhar": "जव्हार-पालघर",
+    "palghar": "जव्हार-पालघर",
+    "जव्हार-पालघर": "जव्हार-पालघर",
     "important": "महत्वाचे",
     "trending": "महत्वाचे",
     "special": "विशेष",
@@ -526,9 +534,10 @@ export async function getCategories() {
   return [
     { name: "Latest News", slug: "latest-news", order: 1, showInNavbar: true },
     { name: "कल्याण- डोंबिवली (KDMC)", slug: "kalyan-dombivli", order: 2, showInNavbar: true },
-    { name: "महत्वाचे", slug: "important", order: 3, showInNavbar: true },
-    { name: "विशेष", slug: "special", order: 4, showInNavbar: true },
-    { name: "Welfare", slug: "welfare", order: 5, showInNavbar: true },
-    { name: "शिक्षण", slug: "education", order: 6, showInNavbar: true },
+    { name: "जव्हार-पालघर", slug: "jawhar-palghar", order: 3, showInNavbar: true },
+    { name: "महत्वाचे", slug: "important", order: 4, showInNavbar: true },
+    { name: "विशेष", slug: "special", order: 5, showInNavbar: true },
+    { name: "Welfare", slug: "welfare", order: 6, showInNavbar: true },
+    { name: "शिक्षण", slug: "education", order: 7, showInNavbar: true },
   ]
 }

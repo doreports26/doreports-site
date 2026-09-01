@@ -14,6 +14,7 @@ import { useState, useEffect, useRef } from "react";
 const navLinks = [
   { name: "Latest News", href: "/category/latest-news", bold: true },
   { name: "कल्याण- डोंबिवली (KDMC)", href: "/category/kalyan-dombivli" },
+  { name: "जव्हार-पालघर", href: "/category/jawhar-palghar" },
   { name: "महत्वाचे", href: "/category/important" },
   { name: "विशेष", href: "/category/special" },
   { name: "Welfare", href: "/category/welfare" },
@@ -23,6 +24,7 @@ const navLinks = [
 const trendingTags = [
   "महाराष्ट्र विधानसभा",
   "कल्याण विकास",
+  "जव्हार-पालघर",
   "शैक्षणिक धोरण",
   "Local Trains",
   "हवामान अंदाज",
@@ -31,6 +33,7 @@ const trendingTags = [
 
 const quickCategories = [
   { name: "कल्याण- डोंबिवली (KDMC)", href: "/category/kalyan-dombivli" },
+  { name: "जव्हार-पालघर", href: "/category/jawhar-palghar" },
   { name: "महत्वाचे", href: "/category/important" },
   { name: "विशेष", href: "/category/special" },
   { name: "Welfare", href: "/category/welfare" },
@@ -127,7 +130,7 @@ export function Navbar() {
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-6 flex-1 justify-center">
+          <nav className="hidden lg:flex items-center space-x-3.5 xl:space-x-6 flex-1 justify-center">
             {navLinks.map((link, index) => (
               <Link
                 key={index}

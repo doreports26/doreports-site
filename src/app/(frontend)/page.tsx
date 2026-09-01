@@ -20,6 +20,7 @@ export default async function Home() {
     : rawTopStories;
 
   const politicsStories = await getStoriesBySection('kalyan-dombivli', 4);
+  const jawharPalgharStories = await getStoriesBySection('jawhar-palghar', 4);
   const entertainmentStories = await getStoriesBySection('important', 4);
   const specialStories = await getStoriesBySection('special', 4);
   const webStories = await getStoriesBySection('welfare', 4);
@@ -219,6 +220,49 @@ export default async function Home() {
                     </div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Jawhar-Palghar (जव्हार-पालघर) Section */}
+            {jawharPalgharStories.length > 0 && (
+              <div className="mt-6">
+                <div className="flex items-center justify-between bg-[#090909] text-white px-4 py-3 mb-6 shadow-sm rounded-sm border-l-4 border-l-[#f72e06]">
+                  <div className="flex items-center gap-3">
+                    <div className="w-1.5 h-4 bg-[#cd0442]" />
+                    <h3 className="font-bold text-lg">जव्हार-पालघर</h3>
+                  </div>
+                  <Link href="/category/jawhar-palghar" className="text-sm font-bold text-gray-300 hover:text-[#f72e06] flex items-center transition-colors">
+                    See All <ChevronRight className="w-4 h-4 ml-1" />
+                  </Link>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                  {jawharPalgharStories.map((story, idx) => (
+                    <Link href={`/article/${story.slug}`} key={story.slug || idx}>
+                      <div className="flex flex-col group cursor-pointer bg-white rounded-lg overflow-hidden border border-gray-100 shadow-xs hover:shadow-md transition-shadow">
+                        <div className="w-full aspect-[16/10] relative overflow-hidden bg-gray-200">
+                          <img 
+                            src={story.image} 
+                            alt={story.title} 
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                          <div className="absolute top-0 right-0 bg-[#cd0442] text-white text-[9px] px-2 py-0.5 font-bold rounded-bl-sm">
+                            {story.tag || "जव्हार-पालघर"}
+                          </div>
+                        </div>
+                        <div className="p-3">
+                          <h4 className="font-bold text-gray-800 text-[13px] leading-snug group-hover:text-[#cd0442] transition-colors line-clamp-2">
+                            {story.title}
+                          </h4>
+                          <div className="flex items-center gap-1.5 text-gray-500 text-[10px] mt-2">
+                            <Clock className="w-2.5 h-2.5" />
+                            <span>{story.date}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               </div>
             )}
 

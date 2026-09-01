@@ -157,6 +157,7 @@ export const article = defineType({
           { title: 'Top Stories (मुख्य बातम्या)', value: 'top-stories' },
           { title: 'Latest News (ताज्या घडामोडी)', value: 'latest-news' },
           { title: 'Politics (राजकारण / कल्याण-डोंबिवली)', value: 'politics' },
+          { title: 'Jawhar-Palghar (जव्हार-पालघर)', value: 'jawhar-palghar' },
           { title: 'Important (महत्वाचे)', value: 'important' },
           { title: 'Special (विशेष)', value: 'special' },
           { title: 'Welfare (कल्याण)', value: 'welfare' },

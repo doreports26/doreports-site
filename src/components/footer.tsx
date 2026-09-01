@@ -79,6 +79,7 @@ export function Footer() {
             <ul className="flex flex-col gap-4 text-[14px] font-medium text-gray-400">
               {[
                 { name: 'कल्याण- डोंबिवली (KDMC)', href: '/category/kalyan-dombivli' },
+                { name: 'जव्हार-पालघर', href: '/category/jawhar-palghar' },
                 { name: 'महत्वाचे', href: '/category/important' },
                 { name: 'विशेष', href: '/category/special' },
                 { name: 'Welfare', href: '/category/welfare' },

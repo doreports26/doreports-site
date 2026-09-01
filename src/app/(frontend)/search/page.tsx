@@ -104,6 +104,7 @@ export default async function SearchPage({
                   {[
                     { name: "Latest News", href: "/category/latest-news" },
                     { name: "कल्याण- डोंबिवली (KDMC)", href: "/category/kalyan-dombivli" },
+                    { name: "जव्हार-पालघर", href: "/category/jawhar-palghar" },
                     { name: "महत्वाचे", href: "/category/important" },
                     { name: "विशेष", href: "/category/special" },
                     { name: "शिक्षण", href: "/category/education" },
