@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import type { SanityDocument } from 'sanity'
 
 interface PreviewPaneProps {
@@ -8,6 +8,8 @@ interface PreviewPaneProps {
         current?: string
       }
     }
+    draft?: (SanityDocument & { slug?: { current?: string } }) | null
+    published?: (SanityDocument & { slug?: { current?: string } }) | null
   }
 }
 
@@ -15,27 +17,63 @@ type Device = 'desktop' | 'tablet' | 'mobile'
 
 export function PreviewPane(props: PreviewPaneProps) {
   const { document } = props
-  const { displayed } = document
-  const slug = displayed?.slug?.current
+  const { displayed, draft, published } = document
+  const rawId = displayed?._id || ''
+  const cleanId = rawId.replace(/^drafts\./, '')
+  const slug = displayed?.slug?.current || cleanId || 'preview-draft'
+  const isSlugGenerated = Boolean(displayed?.slug?.current)
+
+  const isPublished = Boolean(published)
+  const hasDraft = Boolean(draft)
+  const isDraftOnly = hasDraft && !isPublished
+  const isPublishedWithDraft = hasDraft && isPublished
+  const isPublishedOnly = !hasDraft && isPublished
+
   const [device, setDevice] = useState<Device>('desktop')
   const [reloadKey, setReloadKey] = useState<number>(0)
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
 
-  if (!slug) {
-    return (
-      <div style={{ padding: '32px', textAlign: 'center', fontFamily: 'system-ui, sans-serif' }}>
-        <div style={{ fontSize: '18px', fontWeight: 600, color: '#111', marginBottom: '8px' }}>
-          No Slug Provided Yet
-        </div>
-        <p style={{ color: '#666', fontSize: '14px', maxWidth: '400px', margin: '0 auto' }}>
-          Please enter an article title and generate or set a slug to preview this article before publishing.
-        </p>
-      </div>
-    )
-  }
+  // URL that enables draft mode and redirects to the article page with inStudio flag
+  const previewUrl = `/api/draft-mode/enable?slug=${encodeURIComponent(slug)}${cleanId ? `&id=${encodeURIComponent(cleanId)}` : ''}&preview=true&inStudio=true`
+  const liveUrl = slug ? `/article/${encodeURIComponent(slug)}` : previewUrl
 
-  // The draft mode enable URL automatically activates draft mode in Next.js and loads the article
-  const previewUrl = `/api/draft-mode/enable?slug=${encodeURIComponent(slug)}`
+  // Send live draft updates to the iframe whenever any field in Sanity Studio changes
+  useEffect(() => {
+    const iframe = iframeRef.current
+    if (iframe && iframe.contentWindow && displayed) {
+      iframe.contentWindow.postMessage(
+        {
+          type: 'DOREPORTS_DRAFT_UPDATE',
+          document: displayed,
+        },
+        '*'
+      )
+    }
+  }, [displayed])
+
+  // Listen for the iframe's handshake ready message and immediately send current form state
+  useEffect(() => {
+    function handleMessage(event: MessageEvent) {
+      if (event.data?.type === 'DOREPORTS_PREVIEW_READY') {
+        const iframe = iframeRef.current
+        if (iframe && iframe.contentWindow && displayed) {
+          iframe.contentWindow.postMessage(
+            {
+              type: 'DOREPORTS_DRAFT_UPDATE',
+              document: displayed,
+            },
+            '*'
+          )
+        }
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+    return () => {
+      window.removeEventListener('message', handleMessage)
+    }
+  }, [displayed])
 
   const getWidth = () => {
     switch (device) {
@@ -74,16 +112,105 @@ export function PreviewPane(props: PreviewPaneProps) {
           boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
         }}
       >
-        {/* Left: Device Switcher */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ fontSize: '12px', fontWeight: 600, color: '#475569', marginRight: '4px' }}>
+        {/* Left: Device Switcher & Dynamic Status Badge */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          {isPublishedOnly && (
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '3px 9px',
+                fontSize: '11px',
+                fontWeight: 700,
+                backgroundColor: '#eff6ff',
+                color: '#1d4ed8',
+                border: '1px solid #bfdbfe',
+                borderRadius: '9999px',
+              }}
+            >
+              <span
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  backgroundColor: '#3b82f6',
+                }}
+              />
+              LIVE (Published)
+            </span>
+          )}
+
+          {isPublishedWithDraft && (
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '3px 9px',
+                fontSize: '11px',
+                fontWeight: 700,
+                backgroundColor: '#fffbeb',
+                color: '#b45309',
+                border: '1px solid #fde68a',
+                borderRadius: '9999px',
+              }}
+            >
+              <span
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  backgroundColor: '#f59e0b',
+                }}
+              />
+              DRAFT EDITS (Unpublished Changes)
+            </span>
+          )}
+
+          {isDraftOnly && (
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                padding: '3px 9px',
+                fontSize: '11px',
+                fontWeight: 700,
+                backgroundColor: '#ecfdf5',
+                color: '#047857',
+                border: '1px solid #a7f3d0',
+                borderRadius: '9999px',
+              }}
+            >
+              <span
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  backgroundColor: '#10b981',
+                }}
+              />
+              LIVE PREVIEW (Draft)
+            </span>
+          )}
+
+          <span
+            style={{
+              fontSize: '11px',
+              fontWeight: 600,
+              color: '#64748b',
+              marginLeft: '4px',
+            }}
+          >
             VIEWPORT:
           </span>
+
           <button
             type="button"
             onClick={() => setDevice('desktop')}
             style={{
-              padding: '6px 12px',
+              padding: '5px 10px',
               fontSize: '12px',
               fontWeight: device === 'desktop' ? 700 : 500,
               backgroundColor: device === 'desktop' ? '#090909' : '#f8fafc',
@@ -101,7 +228,7 @@ export function PreviewPane(props: PreviewPaneProps) {
             type="button"
             onClick={() => setDevice('tablet')}
             style={{
-              padding: '6px 12px',
+              padding: '5px 10px',
               fontSize: '12px',
               fontWeight: device === 'tablet' ? 700 : 500,
               backgroundColor: device === 'tablet' ? '#090909' : '#f8fafc',
@@ -119,7 +246,7 @@ export function PreviewPane(props: PreviewPaneProps) {
             type="button"
             onClick={() => setDevice('mobile')}
             style={{
-              padding: '6px 12px',
+              padding: '5px 10px',
               fontSize: '12px',
               fontWeight: device === 'mobile' ? 700 : 500,
               backgroundColor: device === 'mobile' ? '#090909' : '#f8fafc',
@@ -147,7 +274,7 @@ export function PreviewPane(props: PreviewPaneProps) {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '4px',
-              padding: '6px 12px',
+              padding: '5px 10px',
               fontSize: '12px',
               fontWeight: 600,
               backgroundColor: '#f8fafc',
@@ -157,30 +284,76 @@ export function PreviewPane(props: PreviewPaneProps) {
               cursor: 'pointer',
             }}
           >
-            🔄 Refresh Preview
+            🔄 Refresh
           </button>
-          <a
-            href={previewUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '6px 12px',
-              fontSize: '12px',
-              fontWeight: 600,
-              backgroundColor: '#cd0442',
-              color: '#ffffff',
-              borderRadius: '4px',
-              textDecoration: 'none',
-              cursor: 'pointer',
-            }}
-          >
-            ↗️ Open Live in New Tab
-          </a>
+
+          {isPublished && (
+            <a
+              href={liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '5px 12px',
+                fontSize: '12px',
+                fontWeight: 600,
+                backgroundColor: '#0284c7',
+                color: '#ffffff',
+                borderRadius: '4px',
+                textDecoration: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              🌐 Open Live Article
+            </a>
+          )}
+
+          {hasDraft && (
+            <a
+              href={previewUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '5px 12px',
+                fontSize: '12px',
+                fontWeight: 600,
+                backgroundColor: '#cd0442',
+                color: '#ffffff',
+                borderRadius: '4px',
+                textDecoration: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              ↗️ {isPublished ? 'Preview Draft Edits' : 'Open Draft Preview'}
+            </a>
+          )}
         </div>
       </div>
+
+      {!isSlugGenerated && (
+        <div
+          style={{
+            backgroundColor: '#fffbeb',
+            borderBottom: '1px solid #fef3c7',
+            padding: '6px 16px',
+            fontSize: '12px',
+            color: '#92400e',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+          }}
+        >
+          <span>💡</span>
+          <span>
+            <strong>टीप (Tip):</strong> लेख शीर्षक प्रविष्ट करून Slug जनरेट करा. खालील प्रिव्ह्यू तुम्ही टाइप करताच आपोआप रिअल-टाइम अपडेट होईल.
+          </span>
+        </div>
+      )}
 
       {/* Frame Container */}
       <div
@@ -212,9 +385,21 @@ export function PreviewPane(props: PreviewPaneProps) {
           }}
         >
           <iframe
+            ref={iframeRef}
             key={reloadKey}
             src={previewUrl}
-            onLoad={() => setIsLoading(false)}
+            onLoad={() => {
+              setIsLoading(false)
+              if (iframeRef.current?.contentWindow && displayed) {
+                iframeRef.current.contentWindow.postMessage(
+                  {
+                    type: 'DOREPORTS_DRAFT_UPDATE',
+                    document: displayed,
+                  },
+                  '*'
+                )
+              }
+            }}
             title="Article Live Preview"
             style={{
               width: '100%',
@@ -229,3 +414,4 @@ export function PreviewPane(props: PreviewPaneProps) {
     </div>
   )
 }
+

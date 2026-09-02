@@ -5,16 +5,17 @@ import { Eye, ExternalLink, X, Edit3 } from 'lucide-react'
 
 interface DraftModeBarProps {
   slug?: string
+  isPublished?: boolean
 }
 
-export function DraftModeBar({ slug }: DraftModeBarProps) {
+export function DraftModeBar({ slug, isPublished = false }: DraftModeBarProps) {
   const disableUrl = slug
     ? `/api/draft-mode/disable?slug=${encodeURIComponent(slug)}`
     : '/api/draft-mode/disable'
 
   return (
     <aside
-      aria-label="Draft preview toolbar"
+      aria-label="Preview toolbar"
       className="sticky top-0 z-[9999] w-full bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white shadow-md border-b border-amber-500/40 px-4 py-2 text-xs sm:text-sm font-medium"
     >
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
@@ -26,10 +27,12 @@ export function DraftModeBar({ slug }: DraftModeBarProps) {
           </span>
           <div className="flex items-center gap-1.5 font-semibold">
             <Eye className="w-4 h-4" />
-            <span>DRAFT PREVIEW MODE</span>
+            <span>{isPublished ? 'PREVIEW MODE' : 'DRAFT PREVIEW MODE'}</span>
           </div>
           <span className="hidden md:inline-block text-amber-100 text-xs font-normal">
-            (Viewing live unpublished draft changes)
+            {isPublished
+              ? '(Viewing live article in preview mode)'
+              : '(Viewing live unpublished draft changes)'}
           </span>
         </div>
 
@@ -54,3 +57,4 @@ export function DraftModeBar({ slug }: DraftModeBarProps) {
     </aside>
   )
 }
+

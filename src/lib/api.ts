@@ -54,7 +54,7 @@ function formatDate(dateVal?: string | Date): string {
  * Transform a raw Sanity document into the ArticleItem shape
  * that the frontend components expect.
  */
-function transformSanityDocToArticle(doc: any): ArticleItem {
+export function transformSanityDocToArticle(doc: any): ArticleItem {
   // Image: prefer Sanity image, fall back to external URL, then high quality placeholder
   let image = 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?q=80&w=1470&auto=format&fit=crop'
   if (doc.mainImage) {
@@ -286,29 +286,54 @@ export async function getStoriesBySection(section: string, limit = 4): Promise<A
 }
 
 /**
- * Fetch Single Article By Slug from Sanity (with decoding and case-insensitive fallback).
+ * Fetch Single Article By Slug from Sanity (with decoding, ID fallback, and case-insensitive fallback).
  * Supports draft mode to fetch unpublished articles or preview draft edits.
  */
 export async function getArticleBySlug(
   slug: string,
-  options?: { isDraftMode?: boolean }
+  options?: { isDraftMode?: boolean; documentId?: string }
 ): Promise<ArticleItem | null> {
   const decodedSlug = decodeURIComponent(slug)
   const isDraft = Boolean(options?.isDraftMode)
   const fetchClient = isDraft ? getSanityClient({ isDraftMode: true }) : client
+  const docId = options?.documentId || ''
+  const cleanDocId = docId.replace(/^drafts\./, '')
 
   if (isSanityConfigured) {
     try {
-      // 1. Exact match (prioritizing latest modified draft if draft mode is enabled)
+      // 1. If in draft mode and document ID is provided, query directly by ID / draft ID first
+      if (isDraft && cleanDocId) {
+        const idDoc = await fetchClient.fetch(
+          `*[_type in ["post", "article"] && (_id in [$cleanDocId, "drafts." + $cleanDocId, $docId])] | order(_updatedAt desc)[0] ${articleProjection}`,
+          { cleanDocId, docId }
+        )
+        if (idDoc) {
+          return transformSanityDocToArticle(idDoc)
+        }
+      }
+
+      // 2. Exact match on slug or _id (prioritizing latest modified draft if draft mode is enabled)
       let doc = await fetchClient.fetch(
-        `*[_type in ["post", "article"] && slug.current == $slug] | order(_updatedAt desc)[0] ${articleProjection}`,
+        `*[_type in ["post", "article"] && (
+          slug.current == $slug || 
+          _id == $slug || 
+          _id == "drafts." + $slug
+        )] | order(_updatedAt desc)[0] ${articleProjection}`,
         { slug: decodedSlug }
       )
 
-      // 2. Case-insensitive fallback
+      // 3. Case-insensitive fallback
       if (!doc) {
         doc = await fetchClient.fetch(
           `*[_type in ["post", "article"] && lower(slug.current) == lower($slug)] | order(_updatedAt desc)[0] ${articleProjection}`,
+          { slug: decodedSlug }
+        )
+      }
+
+      // 4. If draft mode and still not found, check if slug is actually an ID
+      if (!doc && isDraft) {
+        doc = await fetchClient.fetch(
+          `*[_type in ["post", "article"] && (_id in [$slug, "drafts." + $slug])] | order(_updatedAt desc)[0] ${articleProjection}`,
           { slug: decodedSlug }
         )
       }
