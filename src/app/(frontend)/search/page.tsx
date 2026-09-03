@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { LatestNewsWidget } from "@/components/LatestNewsWidget";
 import { Pagination } from "@/components/Pagination";
-import { searchArticles } from "@/lib/api";
+import { searchArticles, type ArticleItem } from "@/lib/api";
 import { SearchTracker } from "@/components/analytics/SearchTracker";
 import { Search as SearchIcon, AlertCircle, ArrowRight } from "lucide-react";
 import type { Metadata } from 'next';
@@ -123,7 +123,7 @@ export default async function SearchPage({
               </div>
             </div>
           ) : (
-            articles.map((item: any, idx: number) => (
+            articles.map((item: ArticleItem, idx: number) => (
               <Link href={`/article/${item.slug}`} key={item.slug || idx} className="group">
                 <div className="flex flex-col sm:flex-row gap-6 border-b border-gray-100 pb-8 last:border-0 cursor-pointer">
                   {/* Thumbnail Image */}

@@ -382,8 +382,30 @@ export function PreviewPane(props: PreviewPaneProps) {
             flexDirection: 'column',
             transition: 'width 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
             border: device === 'desktop' ? 'none' : '2px solid #cbd5e1',
+            position: 'relative',
           }}
         >
+          {isLoading && (
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                zIndex: 10,
+                fontSize: '13px',
+                color: '#64748b',
+                fontWeight: 500,
+              }}
+            >
+              Loading preview...
+            </div>
+          )}
           <iframe
             ref={iframeRef}
             key={reloadKey}

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Share2, Check, Copy, MessageCircle, Send } from "lucide-react";
+import { useState } from "react";
+import { Share2, Check } from "lucide-react";
 import { trackShare } from "@/lib/gtag";
 
 interface ArticleShareProps {
@@ -11,14 +11,8 @@ interface ArticleShareProps {
 }
 
 export function ArticleShareButtons({ title, slug, variant = "top-compact" }: ArticleShareProps) {
-  const [shareUrl, setShareUrl] = useState(`https://doreports.com/article/${slug}`);
   const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      setShareUrl(window.location.href);
-    }
-  }, []);
+  const shareUrl = `https://doreports.com/article/${slug}`;
 
   const encodedUrl = encodeURIComponent(shareUrl);
   const encodedTitle = encodeURIComponent(title);
@@ -41,13 +35,14 @@ export function ArticleShareButtons({ title, slug, variant = "top-compact" }: Ar
 
   const handleNativeShareOrCopy = async (e: React.MouseEvent) => {
     e.preventDefault();
+    const currentUrl = typeof window !== "undefined" ? window.location.href : shareUrl;
 
-    if (navigator.share) {
+    if (typeof navigator !== "undefined" && navigator.share) {
       try {
         await navigator.share({
           title,
           text: title,
-          url: shareUrl,
+          url: currentUrl,
         });
         trackShare({
           method: "native_share",
@@ -56,9 +51,9 @@ export function ArticleShareButtons({ title, slug, variant = "top-compact" }: Ar
           item_name: title,
         });
         return;
-      } catch (err: any) {
+      } catch (err: unknown) {
         // If user cancelled share sheet, do nothing
-        if (err.name === "AbortError") return;
+        if (err instanceof Error && err.name === "AbortError") return;
       }
     }
 

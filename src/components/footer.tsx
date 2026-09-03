@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Rss, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="currentColor" {...props}>

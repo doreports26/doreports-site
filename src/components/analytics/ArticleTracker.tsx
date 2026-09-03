@@ -28,7 +28,7 @@ export function ArticleTracker({
   wordCount = 0,
 }: ArticleTrackerProps) {
   const activeSecondsRef = useRef(0);
-  const lastActiveTimestampRef = useRef(Date.now());
+  const lastActiveTimestampRef = useRef(0);
   const isUserActiveRef = useRef(true);
   const maxScrollPercentRef = useRef(0);
   const scrollMilestonesRef = useRef<Set<number>>(new Set());

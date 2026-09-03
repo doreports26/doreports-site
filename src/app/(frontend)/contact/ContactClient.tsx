@@ -5,7 +5,6 @@ import Link from "next/link";
 import {
   Mail,
   MapPin,
-  Phone,
   Send,
   CheckCircle2,
   ChevronRight,

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronRight, TrendingUp, Zap, Clock, Newspaper } from "lucide-react";
+import { ChevronRight, TrendingUp, Clock, Newspaper } from "lucide-react";
 import { 
   getMainStory, 
   getTopStories, 

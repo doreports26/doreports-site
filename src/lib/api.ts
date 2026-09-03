@@ -28,12 +28,53 @@ export interface ArticleItem {
   author?: string
   authorDetails?: AuthorItem
   snippet?: string
-  content?: any
+  content?: unknown
   rawContent?: string
   category?: CategoryItem | null
   section?: string
   highlight?: boolean
   views?: number
+}
+
+export interface SanityAuthorDoc {
+  name?: string
+  fullName?: string
+  role?: string
+  image?: unknown
+  avatar?: unknown
+  avatarLetter?: string
+  verified?: boolean
+  bio?: string
+}
+
+export interface SanityCategoryDoc {
+  title?: string
+  name?: string
+  slug?: string
+  badgeColor?: string
+}
+
+export interface SanityArticleDoc {
+  _id?: string
+  slug?: string | { current?: string }
+  title?: string
+  publishedAt?: string
+  mainImage?: unknown
+  imageUrl?: string
+  tag?: string
+  tags?: string[]
+  authorNameFallback?: string
+  author?: SanityAuthorDoc
+  category?: SanityCategoryDoc
+  excerpt?: string
+  snippet?: string
+  body?: unknown
+  content?: unknown
+  rawContent?: string
+  section?: string
+  isBreaking?: boolean
+  views?: number
+  [key: string]: unknown
 }
 
 function formatDate(dateVal?: string | Date): string {
@@ -54,7 +95,7 @@ function formatDate(dateVal?: string | Date): string {
  * Transform a raw Sanity document into the ArticleItem shape
  * that the frontend components expect.
  */
-export function transformSanityDocToArticle(doc: any): ArticleItem {
+export function transformSanityDocToArticle(doc: SanityArticleDoc): ArticleItem {
   // Image: prefer Sanity image, fall back to external URL, then high quality placeholder
   let image = 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?q=80&w=1470&auto=format&fit=crop'
   if (doc.mainImage) {
@@ -115,16 +156,20 @@ export function transformSanityDocToArticle(doc: any): ArticleItem {
   // Tags — Sanity stores as string[] directly
   let tagsList: string[] = []
   if (Array.isArray(doc.tags)) {
-    tagsList = doc.tags.filter((t: any): t is string => typeof t === 'string' && t.trim().length > 0)
+    tagsList = (doc.tags as unknown[]).filter((t): t is string => typeof t === 'string' && t.trim().length > 0)
   }
   if (tagsList.length === 0 && doc.tag) {
     tagsList = [doc.tag, 'Do Reports', 'महाराष्ट्र']
   }
 
+  // Clean slug
+  const rawSlug = typeof doc.slug === 'string' ? doc.slug : (doc.slug?.current || doc._id || '')
+  const cleanSlug = rawSlug ? String(rawSlug).trim() : ''
+
   return {
     id: doc._id,
-    slug: doc.slug,
-    title: doc.title,
+    slug: cleanSlug,
+    title: doc.title || '',
     date: formatDate(doc.publishedAt),
     image,
     tag: doc.tag || 'Do Reports',
@@ -286,63 +331,121 @@ export async function getStoriesBySection(section: string, limit = 4): Promise<A
 }
 
 /**
- * Fetch Single Article By Slug from Sanity (with decoding, ID fallback, and case-insensitive fallback).
+ * Helper to build multiple variations of a slug so that articles can always be found
+ * regardless of trailing spaces, spaces vs hyphens, uppercase/lowercase, Devanagari encoding, or IDs.
+ */
+export function getSlugCandidates(rawSlug: string): string[] {
+  if (!rawSlug) return []
+  const candidates = new Set<string>()
+
+  // 1. Raw input and trims
+  candidates.add(rawSlug)
+  const trimmed = rawSlug.trim()
+  if (trimmed) {
+    candidates.add(trimmed)
+    candidates.add(trimmed.toLowerCase())
+    candidates.add(trimmed + ' ')
+  }
+
+  // 2. Decoded URI
+  let decoded = rawSlug
+  try {
+    decoded = decodeURIComponent(rawSlug).trim()
+  } catch {
+    // fallback
+  }
+
+  if (decoded) {
+    candidates.add(decoded)
+    candidates.add(decoded.toLowerCase())
+    candidates.add(decoded + ' ')
+
+    // 3. Hyphenated variations
+    const withHyphens = decoded.replace(/\s+/g, '-')
+    candidates.add(withHyphens)
+    candidates.add(withHyphens.toLowerCase())
+    candidates.add(withHyphens + ' ')
+    candidates.add(withHyphens.replace(/^-+|-+$/g, ''))
+    candidates.add(withHyphens.replace(/^-+|-+$/g, '').toLowerCase())
+
+    // 4. Space variations
+    const withSpaces = decoded.replace(/-/g, ' ')
+    candidates.add(withSpaces)
+    candidates.add(withSpaces.toLowerCase())
+    candidates.add(withSpaces + ' ')
+
+    // 5. Unicode normalized (Devanagari matras)
+    const normalized = decoded.normalize('NFC')
+    candidates.add(normalized)
+    candidates.add(normalized.toLowerCase())
+    candidates.add(normalized + ' ')
+  }
+
+  return Array.from(candidates).filter(Boolean)
+}
+
+/**
+ * Fetch Single Article By Slug from Sanity (with multi-candidate matching, ID fallback, and case-insensitive fallback).
  * Supports draft mode to fetch unpublished articles or preview draft edits.
  */
 export async function getArticleBySlug(
   slug: string,
   options?: { isDraftMode?: boolean; documentId?: string }
 ): Promise<ArticleItem | null> {
-  const decodedSlug = decodeURIComponent(slug)
   const isDraft = Boolean(options?.isDraftMode)
   const fetchClient = isDraft ? getSanityClient({ isDraftMode: true }) : client
-  const docId = options?.documentId || ''
+  const docId = (options?.documentId || '').trim()
   const cleanDocId = docId.replace(/^drafts\./, '')
+  const candidates = getSlugCandidates(slug)
+  const idCandidates = cleanDocId
+    ? [cleanDocId, `drafts.${cleanDocId}`, docId]
+    : []
 
   if (isSanityConfigured) {
     try {
       // 1. If in draft mode and document ID is provided, query directly by ID / draft ID first
       if (isDraft && cleanDocId) {
         const idDoc = await fetchClient.fetch(
-          `*[_type in ["post", "article"] && (_id in [$cleanDocId, "drafts." + $cleanDocId, $docId])] | order(_updatedAt desc)[0] ${articleProjection}`,
-          { cleanDocId, docId }
+          `*[_type in ["post", "article"] && (_id in $idCandidates)] | order(_updatedAt desc)[0] ${articleProjection}`,
+          { idCandidates }
         )
         if (idDoc) {
           return transformSanityDocToArticle(idDoc)
         }
       }
 
-      // 2. Exact match on slug or _id (prioritizing latest modified draft if draft mode is enabled)
+      // 2. Query by slug candidates or _id candidates
       let doc = await fetchClient.fetch(
         `*[_type in ["post", "article"] && (
-          slug.current == $slug || 
-          _id == $slug || 
-          _id == "drafts." + $slug
+          slug.current in $candidates || 
+          lower(slug.current) in $candidates || 
+          _id in $candidates || 
+          "drafts." + _id in $candidates ||
+          _id in $idCandidates
         )] | order(_updatedAt desc)[0] ${articleProjection}`,
-        { slug: decodedSlug }
+        { candidates, idCandidates }
       )
 
-      // 3. Case-insensitive fallback
+      // 3. Fallback for prefix / partial match if slug had trailing characters or slight mismatch
       if (!doc) {
-        doc = await fetchClient.fetch(
-          `*[_type in ["post", "article"] && lower(slug.current) == lower($slug)] | order(_updatedAt desc)[0] ${articleProjection}`,
-          { slug: decodedSlug }
-        )
-      }
-
-      // 4. If draft mode and still not found, check if slug is actually an ID
-      if (!doc && isDraft) {
-        doc = await fetchClient.fetch(
-          `*[_type in ["post", "article"] && (_id in [$slug, "drafts." + $slug])] | order(_updatedAt desc)[0] ${articleProjection}`,
-          { slug: decodedSlug }
-        )
+        const decoded = decodeURIComponent(slug).trim()
+        const firstSegment = decoded.replace(/\s+/g, '-').split('-')[0]
+        if (firstSegment && firstSegment.length >= 3) {
+          doc = await fetchClient.fetch(
+            `*[_type in ["post", "article"] && (
+              slug.current match $pattern ||
+              title match $pattern
+            )] | order(_updatedAt desc)[0] ${articleProjection}`,
+            { pattern: `*${firstSegment}*` }
+          )
+        }
       }
 
       if (doc) {
         return transformSanityDocToArticle(doc)
       }
     } catch (err) {
-      console.error(`Error fetching article [${decodedSlug}] from Sanity:`, err)
+      console.error(`Error fetching article [${slug}] from Sanity:`, err)
     }
   }
 
@@ -542,7 +645,7 @@ export async function getCategories() {
       )
 
       if (docs && docs.length > 0) {
-        return docs.map((c: any) => ({
+        return docs.map((c: { _id?: string; name?: string; slug?: string; order?: number; showInNavbar?: boolean; badgeColor?: string }) => ({
           id: c._id,
           name: c.name?.trim(),
           slug: c.slug,

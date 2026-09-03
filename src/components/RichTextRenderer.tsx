@@ -5,7 +5,7 @@ import type { PortableTextComponents } from "@portabletext/react";
 import { urlFor } from "@/sanity/image";
 
 interface RichTextRendererProps {
-  content?: any;
+  content?: unknown;
   rawContent?: string;
   snippet?: string;
   className?: string;

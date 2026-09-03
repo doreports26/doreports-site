@@ -37,4 +37,5 @@ export function marathiSlugify(source: string, maxLength = 200): string {
     .slice(0, maxLength)
     // Re-trim trailing hyphen in case slice cut at a hyphen
     .replace(/-+$/, '')
+    .trim()
 }

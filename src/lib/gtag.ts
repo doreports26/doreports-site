@@ -7,11 +7,11 @@ export const GA_MEASUREMENT_ID =
 // Global Window interface definition for gtag & dataLayer
 declare global {
   interface Window {
-    dataLayer: any[];
+    dataLayer: unknown[];
     gtag: (
       command: "config" | "event" | "js" | "set" | "consent",
       targetIdOrAction: string | Date,
-      configOrParams?: Record<string, any>
+      configOrParams?: Record<string, unknown>
     ) => void;
   }
 }
@@ -34,7 +34,7 @@ export const pageview = (url: string, title?: string) => {
  */
 export const event = (
   action: string,
-  params: Record<string, any> = {}
+  params: Record<string, unknown> = {}
 ) => {
   if (typeof window === "undefined" || !window.gtag) return;
 

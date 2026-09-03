@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Zap, BadgeCheck, Copy, Calendar, Eye } from 'lucide-react'
-import { LatestNewsWidget } from '@/components/LatestNewsWidget'
 import { ArticleShareButtons } from '@/components/ArticleShareButtons'
 import { RichTextRenderer } from '@/components/RichTextRenderer'
 import { WhatsAppChannelButton } from '@/components/WhatsAppChannelButton'
@@ -14,6 +13,7 @@ interface LiveArticleViewProps {
   isDraftMode?: boolean
   latestStories: ArticleItem[]
   slug: string
+  sidebar?: React.ReactNode
 }
 
 export function LiveArticleView({
@@ -21,14 +21,9 @@ export function LiveArticleView({
   isDraftMode = false,
   latestStories = [],
   slug,
+  sidebar,
 }: LiveArticleViewProps) {
-  const [article, setArticle] = useState<ArticleItem | null>(initialArticle)
-
-  useEffect(() => {
-    if (initialArticle) {
-      setArticle(initialArticle)
-    }
-  }, [initialArticle])
+  const [liveArticle, setLiveArticle] = useState<ArticleItem | null>(null)
 
   useEffect(() => {
     if (!isDraftMode && typeof window === 'undefined') return
@@ -48,12 +43,12 @@ export function LiveArticleView({
       ) {
         try {
           const transformed = transformSanityDocToArticle(event.data.document)
-          setArticle((prev) => {
+          setLiveArticle((prev) => {
             return {
-              ...prev,
+              ...(prev || initialArticle),
               ...transformed,
               // Fallback image if needed
-              image: transformed.image || prev?.image || '',
+              image: transformed.image || prev?.image || initialArticle?.image || '',
             }
           })
         } catch (err) {
@@ -66,10 +61,10 @@ export function LiveArticleView({
     return () => {
       window.removeEventListener('message', handleMessage)
     }
-  }, [isDraftMode, slug])
+  }, [isDraftMode, slug, initialArticle])
 
   // If no article exists yet and in draft mode, display a helpful live preview placeholder
-  const activeArticle: ArticleItem = article || {
+  const activeArticle: ArticleItem = liveArticle || initialArticle || {
     slug,
     title: 'नवीन बातमी (Draft Article)',
     date: new Date().toLocaleDateString('mr-IN', {
@@ -326,10 +321,12 @@ export function LiveArticleView({
               <span className="text-[10px] text-gray-400 font-medium">---Advertisement---</span>
             </div>
 
-            {/* Latest News Widget */}
-            <div className="mt-2">
-              <LatestNewsWidget />
-            </div>
+            {/* Latest News Widget / Sidebar Slot */}
+            {sidebar && (
+              <div className="mt-2">
+                {sidebar}
+              </div>
+            )}
           </div>
         </div>
       </div>

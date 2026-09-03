@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Eye, ExternalLink, X, Edit3 } from 'lucide-react'
+import { Eye, X, Edit3 } from 'lucide-react'
 
 interface DraftModeBarProps {
   slug?: string

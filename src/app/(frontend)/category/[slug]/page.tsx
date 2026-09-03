@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { LatestNewsWidget } from "@/components/LatestNewsWidget";
 import { Pagination } from "@/components/Pagination";
-import { getArticlesByCategory, getCategoryDetails } from "@/lib/api";
+import { getArticlesByCategory, getCategoryDetails, type ArticleItem } from "@/lib/api";
 import { CategoryTracker } from "@/components/analytics/CategoryTracker";
 import type { Metadata } from 'next';
 
@@ -61,7 +61,7 @@ export default async function CategoryPage({
               या श्रेणीमध्ये कोणतीही बातमी उपलब्ध नाही.
             </div>
           ) : (
-            articles.map((item: any, idx: number) => (
+            articles.map((item: ArticleItem, idx: number) => (
               <Link href={`/article/${item.slug}`} key={item.slug || idx}>
                 <div className="flex flex-col md:flex-row gap-6 border-b border-gray-100 pb-8 last:border-0 group cursor-pointer">
                   {/* Thumbnail Image */}

@@ -3,30 +3,39 @@ import { client, isSanityConfigured } from './client'
 
 const builder = isSanityConfigured ? createImageUrlBuilder(client) : null
 
+export interface ImageUrlBuilderResult {
+  width: (w: number) => ImageUrlBuilderResult
+  height: (h: number) => ImageUrlBuilderResult
+  url: () => string
+}
+
 /**
  * Generate an image URL from a Sanity image reference.
  * Usage: urlFor(doc.mainImage).width(1200).url()
  */
-export function urlFor(source: any) {
+export function urlFor(source: unknown): ImageUrlBuilderResult {
   if (!source) {
-    return {
-      width: () => ({ height: () => ({ url: () => '' }), url: () => '' }),
-      height: () => ({ width: () => ({ url: () => '' }), url: () => '' }),
+    const emptyResult: ImageUrlBuilderResult = {
+      width: () => emptyResult,
+      height: () => emptyResult,
       url: () => '',
-    } as any
+    }
+    return emptyResult
   }
 
   if (!builder) {
     const fallbackUrl =
       typeof source === 'string'
         ? source
-        : source?.asset?.url || 'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=1470&auto=format&fit=crop'
-    return {
-      width: () => ({ height: () => ({ url: () => fallbackUrl }), url: () => fallbackUrl }),
-      height: () => ({ width: () => ({ url: () => fallbackUrl }), url: () => fallbackUrl }),
+        : (source as { asset?: { url?: string } })?.asset?.url ||
+          'https://images.unsplash.com/photo-1611591437281-460bfbe1220a?q=80&w=1470&auto=format&fit=crop'
+    const fallbackResult: ImageUrlBuilderResult = {
+      width: () => fallbackResult,
+      height: () => fallbackResult,
       url: () => fallbackUrl,
-    } as any
+    }
+    return fallbackResult
   }
 
-  return builder.image(source)
+  return builder.image(source as Parameters<typeof builder.image>[0]) as unknown as ImageUrlBuilderResult
 }

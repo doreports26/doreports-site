@@ -4,6 +4,7 @@ import { getArticleBySlug, getTopStories } from "@/lib/api";
 import { DraftModeBar } from "@/components/DraftModeBar";
 import { ArticleTracker } from "@/components/analytics/ArticleTracker";
 import { LiveArticleView } from "@/components/LiveArticleView";
+import { LatestNewsWidget } from "@/components/LatestNewsWidget";
 import type { Metadata } from "next";
 
 export const dynamic = 'force-dynamic'
@@ -122,6 +123,7 @@ export default async function ArticlePage({
         isDraftMode={isDraftMode}
         latestStories={latestStories}
         slug={slug}
+        sidebar={<LatestNewsWidget />}
       />
     </>
   );
