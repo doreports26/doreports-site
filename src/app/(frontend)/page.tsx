@@ -24,6 +24,7 @@ export default async function Home() {
   const entertainmentStories = await getStoriesBySection('important', 4);
   const specialStories = await getStoriesBySection('special', 4);
   const webStories = await getStoriesBySection('welfare', 4);
+  const entrepreneurshipStories = await getStoriesBySection('entrepreneurship', 4);
   const sportsStories = await getStoriesBySection('education', 4);
 
   // If no articles exist at all yet in the CMS
@@ -385,6 +386,49 @@ export default async function Home() {
                           <h4 className="font-bold text-white text-[13px] leading-tight group-hover:text-[#f72e06] transition-colors line-clamp-3">
                             {story.title}
                           </h4>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Entrepreneurship (उद्योजकता) Section */}
+            {entrepreneurshipStories.length > 0 && (
+              <div className="mt-8">
+                <div className="flex items-center justify-between mb-4 pb-2 border-b-2 border-gray-100">
+                  <div className="flex items-center gap-2">
+                    <div className="w-1.5 h-6 bg-gradient-to-b from-[#f72e06] to-[#cd0442] rounded-sm" />
+                    <h3 className="font-bold text-2xl text-[#090909]">उद्योजकता</h3>
+                  </div>
+                  <Link href="/category/entrepreneurship" className="bg-gradient-to-r from-[#f72e06] to-[#cd0442] text-white px-4 py-1.5 rounded-sm text-sm font-bold flex items-center hover:from-[#cd0442] hover:to-[#b10150] transition-colors shadow-sm">
+                    See All <ChevronRight className="w-4 h-4 ml-1" />
+                  </Link>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                  {entrepreneurshipStories.map((story, idx) => (
+                    <Link href={`/article/${story.slug}`} key={story.slug || idx}>
+                      <div className="flex flex-col group cursor-pointer bg-white rounded-lg overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 h-full">
+                        <div className="w-full aspect-[16/10] relative overflow-hidden bg-gray-100">
+                          <img 
+                            src={story.image} 
+                            alt={story.title} 
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                          <div className="absolute top-2 right-2 bg-[#090909]/90 backdrop-blur-sm text-white text-[10px] px-2 py-0.5 font-bold rounded-sm shadow-sm">
+                            {story.tag || "उद्योजकता"}
+                          </div>
+                        </div>
+                        <div className="p-3.5 flex flex-col justify-between flex-1">
+                          <h4 className="font-bold text-gray-900 text-[14px] leading-snug group-hover:text-[#cd0442] transition-colors line-clamp-2 mb-2">
+                            {story.title}
+                          </h4>
+                          <div className="flex items-center gap-1.5 text-gray-500 text-[11px] mt-auto">
+                            <Clock className="w-3 h-3 text-gray-400" />
+                            <span>{story.date}</span>
+                          </div>
                         </div>
                       </div>
                     </Link>

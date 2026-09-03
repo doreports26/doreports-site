@@ -19,6 +19,7 @@ const navLinks = [
   { name: "विशेष", href: "/category/special" },
   { name: "Welfare", href: "/category/welfare" },
   { name: "शिक्षण", href: "/category/education" },
+  { name: "उद्योजकता", href: "/category/entrepreneurship" },
 ];
 
 const trendingTags = [
@@ -38,6 +39,7 @@ const quickCategories = [
   { name: "विशेष", href: "/category/special" },
   { name: "Welfare", href: "/category/welfare" },
   { name: "शिक्षण", href: "/category/education" },
+  { name: "उद्योजकता", href: "/category/entrepreneurship" },
   { name: "Latest News", href: "/category/latest-news" },
 ];
 
@@ -130,12 +132,12 @@ export function Navbar() {
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-3.5 xl:space-x-6 flex-1 justify-center">
+          <nav className="hidden lg:flex items-center space-x-2 xl:space-x-4.5 2xl:space-x-6 flex-1 justify-center whitespace-nowrap">
             {navLinks.map((link, index) => (
               <Link
                 key={index}
                 href={link.href}
-                className={`text-[15px] hover:text-[#cd0442] transition-colors flex items-center ${
+                className={`text-[13.5px] xl:text-[15px] hover:text-[#cd0442] transition-colors flex items-center whitespace-nowrap ${
                   link.bold ? "font-bold text-[#090909]" : "font-semibold text-gray-800"
                 }`}
               >

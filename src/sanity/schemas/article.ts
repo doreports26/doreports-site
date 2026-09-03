@@ -162,6 +162,7 @@ export const article = defineType({
           { title: 'Special (विशेष)', value: 'special' },
           { title: 'Welfare (कल्याण)', value: 'welfare' },
           { title: 'Education (शिक्षण)', value: 'education' },
+          { title: 'Entrepreneurship (उद्योजकता)', value: 'entrepreneurship' },
           { title: 'Sports (खेळ)', value: 'sports' },
         ],
       },

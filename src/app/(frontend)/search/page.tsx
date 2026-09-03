@@ -109,7 +109,9 @@ export default async function SearchPage({
                     { name: "जव्हार-पालघर", href: "/category/jawhar-palghar" },
                     { name: "महत्वाचे", href: "/category/important" },
                     { name: "विशेष", href: "/category/special" },
+                    { name: "Welfare", href: "/category/welfare" },
                     { name: "शिक्षण", href: "/category/education" },
+                    { name: "उद्योजकता", href: "/category/entrepreneurship" },
                   ].map((cat, i) => (
                     <Link
                       key={i}

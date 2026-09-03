@@ -200,6 +200,11 @@ export const CATEGORY_SLUG_ALIASES: Record<string, string[]> = {
   'special-report': ['special-report', 'special', 'vishesh', 'विशेष'],
   'welfare': ['welfare', 'social', 'कल्याण'],
   'education': ['education', 'shikshan', 'शिक्षण', 'sports'],
+  'entrepreneurship': ['entrepreneurship', 'udyojakta', 'business', 'उद्योजकता', 'उद्योग'],
+  'udyojakta': ['udyojakta', 'entrepreneurship', 'business', 'उद्योजकता', 'उद्योग'],
+  'business': ['business', 'entrepreneurship', 'udyojakta', 'उद्योजकता', 'उद्योग'],
+  'उद्योजकता': ['उद्योजकता', 'entrepreneurship', 'udyojakta', 'business', 'उद्योग'],
+  'उद्योग': ['उद्योग', 'उद्योजकता', 'entrepreneurship', 'udyojakta', 'business'],
   'latest-news': ['latest-news', 'latest', 'top-stories', 'all'],
 }
 
@@ -470,6 +475,11 @@ export async function getCategoryDetails(slug: string): Promise<{ title: string;
     "special-report": "विशेष",
     "welfare": "Welfare",
     "education": "शिक्षण",
+    "entrepreneurship": "उद्योजकता",
+    "udyojakta": "उद्योजकता",
+    "business": "उद्योजकता",
+    "उद्योजकता": "उद्योजकता",
+    "उद्योग": "उद्योजकता",
   }
 
   if (isSanityConfigured) {
@@ -667,5 +677,6 @@ export async function getCategories() {
     { name: "विशेष", slug: "special", order: 5, showInNavbar: true },
     { name: "Welfare", slug: "welfare", order: 6, showInNavbar: true },
     { name: "शिक्षण", slug: "education", order: 7, showInNavbar: true },
+    { name: "उद्योजकता", slug: "entrepreneurship", order: 8, showInNavbar: true },
   ]
 }

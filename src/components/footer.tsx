@@ -84,6 +84,7 @@ export function Footer() {
                 { name: 'विशेष', href: '/category/special' },
                 { name: 'Welfare', href: '/category/welfare' },
                 { name: 'शिक्षण', href: '/category/education' },
+                { name: 'उद्योजकता', href: '/category/entrepreneurship' },
               ].map((link) => (
                 <li key={link.name}>
                   <Link href={link.href} className="group flex items-center gap-2 hover:text-[#f72e06] transition-colors">
