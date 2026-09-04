@@ -133,7 +133,7 @@ export default function PrivacyPolicyPage() {
                   <p>
                     This Privacy Policy describes how we collect, use, process, disclose, and safeguard the information
                     you provide when you visit our website{" "}
-                    <strong>doreports.com</strong> (the &quot;Website&quot;) and any associated services, applications, or
+                    <strong>doreports.in</strong> (the &quot;Website&quot;) and any associated services, applications, or
                     content delivered by us (collectively, the &quot;Services&quot;).
                   </p>
                   <p>
@@ -545,10 +545,10 @@ export default function PrivacyPolicyPage() {
                       <div>
                         <span className="font-bold text-gray-800">Email:</span>{" "}
                         <a
-                          href="mailto:contact@doreports.com"
+                          href="mailto:contact@doreports.in"
                           className="text-[#cd0442] hover:underline font-semibold"
                         >
-                          contact@doreports.com
+                          contact@doreports.in
                         </a>
                       </div>
                       <div>

@@ -110,10 +110,10 @@ export default function ContactClient() {
                 <div>
                   <h3 className="text-sm font-semibold text-gray-900">Email Us</h3>
                   <a
-                    href="mailto:contact@doreports.com"
+                    href="mailto:contact@doreports.in"
                     className="text-sm text-gray-600 hover:text-[#cd0442] transition-colors"
                   >
-                    contact@doreports.com
+                    contact@doreports.in
                   </a>
                 </div>
               </div>

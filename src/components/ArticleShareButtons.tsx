@@ -12,7 +12,8 @@ interface ArticleShareProps {
 
 export function ArticleShareButtons({ title, slug, variant = "top-compact" }: ArticleShareProps) {
   const [copied, setCopied] = useState(false);
-  const shareUrl = `https://doreports.com/article/${slug}`;
+  const baseSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://doreports.in";
+  const shareUrl = `${baseSiteUrl}/article/${slug}`;
 
   const encodedUrl = encodeURIComponent(shareUrl);
   const encodedTitle = encodeURIComponent(title);

@@ -32,29 +32,50 @@ export async function generateMetadata({
     };
   }
 
+  const baseSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://doreports.in';
+  const articleUrl = `${baseSiteUrl}/article/${slug}`;
+  let imageUrl = article.image;
+  if (imageUrl && !imageUrl.startsWith('http://') && !imageUrl.startsWith('https://')) {
+    imageUrl = `${baseSiteUrl}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`;
+  }
+  if (!imageUrl) {
+    imageUrl = `${baseSiteUrl}/android-chrome-512x512.png`;
+  }
+
+  const description = article.snippet || article.title;
+
   return {
     title: `${article.title} | Do Reports`,
-    description: article.snippet || article.title,
+    description,
+    alternates: {
+      canonical: articleUrl,
+    },
     openGraph: {
       title: article.title,
-      description: article.snippet || article.title,
-      images: [
-        {
-          url: article.image,
-          width: 1200,
-          height: 630,
-          alt: article.title,
-        },
-      ],
+      description,
+      url: articleUrl,
+      siteName: "Do Reports",
       type: "article",
       publishedTime: article.date,
       authors: [article.author || "Do Reports Desk"],
+      images: [
+        {
+          url: imageUrl,
+          secureUrl: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: article.title,
+          type: "image/jpeg",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
+      site: "@doreports26",
+      creator: "@doreports26",
       title: article.title,
-      description: article.snippet || article.title,
-      images: [article.image],
+      description,
+      images: [imageUrl],
     },
   };
 }

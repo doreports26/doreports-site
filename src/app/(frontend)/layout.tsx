@@ -16,6 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://doreports.in"),
   title: "Do Reports | ताज्या मराठी बातम्या | Maharashtra News & Updates",
   description: "महाराष्ट्रातील ताज्या आणि महत्त्वपूर्ण घडामोडी, कल्याण-डोंबिवली, राजकारण, शिक्षण आणि क्रीडा क्षेत्रातील बातम्या.",
   icons: {

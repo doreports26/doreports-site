@@ -652,10 +652,10 @@ export default function DisclaimerPage() {
                       <div>
                         <span className="font-bold text-gray-800">Email:</span>{" "}
                         <a
-                          href="mailto:contact@doreports.com"
+                          href="mailto:contact@doreports.in"
                           className="text-[#cd0442] hover:underline font-semibold"
                         >
-                          contact@doreports.com
+                          contact@doreports.in
                         </a>
                       </div>
                       <div>
