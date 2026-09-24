@@ -53,23 +53,55 @@ export const personSchema = (
   sameAs: a.sameAs,
 })
 
-export const newsArticleSchema = (post: any, images: string[]) => ({
-  '@context': 'https://schema.org',
-  '@type': 'NewsArticle',
-  '@id': abs(`/article/${post.slug}#article`),
-  mainEntityOfPage: { '@type': 'WebPage', '@id': abs(`/article/${post.slug}`) },
-  headline: post.title,
-  description: post.excerpt || post.snippet || post.title,
-  image: images, // 3 crops: 1:1 (1200x1200), 4:3 (1200x900), 16:9 (1200x675)
-  datePublished: post.publishedAt || post.date,
-  dateModified: post._updatedAt ?? post.publishedAt ?? post.date,
-  inLanguage: 'mr',
-  isAccessibleForFree: true,
-  articleSection: post.category?.title || post.category?.name,
-  keywords: Array.isArray(post.tags) ? post.tags.join(', ') : undefined,
-  // Real reporter -> Person. Desk item -> Organization.
-  author: post.author?.slug
-    ? personSchema(post.author, false)
-    : { '@type': 'Organization', name: SITE.name, url: SITE.url },
-  publisher: { '@id': abs('/#organization') },
-})
+export interface NewsArticleAuthor {
+  name: string
+  slug?: string
+  jobTitle?: string
+  sameAs?: string[]
+}
+
+export interface NewsArticleInput {
+  slug: string
+  title: string
+  excerpt?: string
+  snippet?: string
+  image?: string
+  mainImage?: unknown
+  date?: string
+  publishedAt?: string
+  _updatedAt?: string
+  category?: { title?: string; name?: string } | null
+  tags?: string[]
+  author?: NewsArticleAuthor | string | null
+  authorDetails?: NewsArticleAuthor | null
+}
+
+export const newsArticleSchema = (post: NewsArticleInput, images: string[]) => {
+  const authorData =
+    typeof post.authorDetails === 'object' && post.authorDetails?.slug
+      ? post.authorDetails
+      : typeof post.author === 'object' && post.author?.slug
+      ? post.author
+      : null
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    '@id': abs(`/article/${post.slug}#article`),
+    mainEntityOfPage: { '@type': 'WebPage', '@id': abs(`/article/${post.slug}`) },
+    headline: post.title,
+    description: post.excerpt || post.snippet || post.title,
+    image: images, // 3 crops: 1:1 (1200x1200), 4:3 (1200x900), 16:9 (1200x675)
+    datePublished: post.publishedAt || post.date,
+    dateModified: post._updatedAt ?? post.publishedAt ?? post.date,
+    inLanguage: 'mr',
+    isAccessibleForFree: true,
+    articleSection: post.category?.title || post.category?.name,
+    keywords: Array.isArray(post.tags) ? post.tags.join(', ') : undefined,
+    // Real reporter -> Person. Desk item -> Organization.
+    author: authorData
+      ? personSchema(authorData, false)
+      : { '@type': 'Organization', name: SITE.name, url: SITE.url },
+    publisher: { '@id': abs('/#organization') },
+  }
+}
