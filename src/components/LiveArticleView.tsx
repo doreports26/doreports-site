@@ -93,7 +93,8 @@ export function LiveArticleView({
   }
 
   const categoryName = activeArticle.category?.name || activeArticle.tag || 'ताज्या घडामोडी'
-  const categorySlug = activeArticle.category?.slug || activeArticle.section || 'latest-news'
+  const rawCategorySlug = activeArticle.category?.slug || activeArticle.section || 'latest-news'
+  const categorySlug = rawCategorySlug === 'trending' ? 'important' : rawCategorySlug
 
   return (
     <main className="min-h-screen bg-white text-gray-900 pb-20 font-sans">
@@ -208,13 +209,12 @@ export function LiveArticleView({
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {activeArticle.tags.map((tag, i) => (
-                    <Link
+                    <span
                       key={i}
-                      href={`/search?q=${encodeURIComponent(tag)}`}
-                      className="inline-flex items-center gap-1.5 bg-gray-100 hover:bg-[#cd0442] text-gray-800 hover:text-white text-[12px] font-semibold px-3.5 py-1.5 rounded-full transition-all cursor-pointer shadow-xs active:scale-95"
+                      className="inline-flex items-center gap-1.5 bg-gray-100 text-gray-800 text-[12px] font-semibold px-3.5 py-1.5 rounded-full shadow-xs"
                     >
-                      <span>#{tag}</span>
-                    </Link>
+                      #{tag}
+                    </span>
                   ))}
                 </div>
               </div>
@@ -316,10 +316,7 @@ export function LiveArticleView({
 
           {/* Right Sidebar */}
           <div className="lg:col-span-4 flex flex-col gap-6 sticky top-24 self-start z-10 w-full pl-0 lg:pl-4">
-            {/* Advertisement Placeholder */}
-            <div className="w-full aspect-square bg-[#f5f5f5] flex flex-col items-center pt-3 border border-gray-100 rounded-xl">
-              <span className="text-[10px] text-gray-400 font-medium">---Advertisement---</span>
-            </div>
+            {/* Reserved for future advertisement slot */}
 
             {/* Latest News Widget / Sidebar Slot */}
             {sidebar && (

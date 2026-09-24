@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Share2, Check } from "lucide-react";
 import { trackShare } from "@/lib/gtag";
+import { abs } from "@/lib/seo/config";
 
 interface ArticleShareProps {
   title: string;
@@ -12,8 +13,7 @@ interface ArticleShareProps {
 
 export function ArticleShareButtons({ title, slug, variant = "top-compact" }: ArticleShareProps) {
   const [copied, setCopied] = useState(false);
-  const baseSiteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://doreports.in";
-  const shareUrl = `${baseSiteUrl}/article/${slug}`;
+  const shareUrl = abs(`/article/${slug}`);
 
   const encodedUrl = encodeURIComponent(shareUrl);
   const encodedTitle = encodeURIComponent(title);

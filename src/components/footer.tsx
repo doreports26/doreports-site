@@ -132,19 +132,19 @@ export function Footer() {
                 </div>
 
                 <div className="flex items-center justify-between gap-2 border-t border-white/5 pt-5">
-                  <a href="#" target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-[#1877F2]/10 border border-[#1877F2]/20 flex items-center justify-center hover:bg-[#1877F2] group/icon transition-all shadow-sm">
+                  <a href="https://facebook.com/doreports" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="w-11 h-11 rounded-lg bg-[#1877F2]/10 border border-[#1877F2]/20 flex items-center justify-center hover:bg-[#1877F2] group/icon transition-all shadow-sm">
                     <FacebookIcon className="w-5 h-5 text-[#1877F2] group-hover/icon:text-white transition-colors" />
                   </a>
-                  <a href="https://x.com/doreports26" target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-black group/icon transition-all shadow-sm">
+                  <a href="https://x.com/doreports26" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)" className="w-11 h-11 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-black group/icon transition-all shadow-sm">
                     <XIcon className="w-5 h-5 text-gray-300 group-hover/icon:text-white transition-colors" />
                   </a>
-                  <a href="#" target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-[#25D366]/10 border border-[#25D366]/20 flex items-center justify-center hover:bg-[#25D366] group/icon transition-all shadow-sm">
+                  <a href="https://whatsapp.com/channel/0029Va9W8X69hXFBzBvM2O3k" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp Channel" className="w-11 h-11 rounded-lg bg-[#25D366]/10 border border-[#25D366]/20 flex items-center justify-center hover:bg-[#25D366] group/icon transition-all shadow-sm">
                     <WhatsappIcon className="w-6 h-6 text-[#25D366] group-hover/icon:text-white transition-colors" />
                   </a>
-                  <a href="https://www.instagram.com/doreportsnews?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw==" target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-pink-500 hover:to-purple-600 group/icon transition-all shadow-sm">
+                  <a href="https://www.instagram.com/doreportsnews" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-11 h-11 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-pink-500 hover:to-purple-600 group/icon transition-all shadow-sm">
                     <InstagramIcon className="w-5 h-5 text-pink-500 group-hover/icon:text-white transition-colors" />
                   </a>
-                  <a href="https://www.youtube.com/@doreports-i1z" target="_blank" rel="noopener noreferrer" className="w-11 h-11 rounded-lg bg-[#FF0000]/10 border border-[#FF0000]/20 flex items-center justify-center hover:bg-[#FF0000] group/icon transition-all shadow-sm">
+                  <a href="https://www.youtube.com/@doreports-i1z" target="_blank" rel="noopener noreferrer" aria-label="YouTube" className="w-11 h-11 rounded-lg bg-[#FF0000]/10 border border-[#FF0000]/20 flex items-center justify-center hover:bg-[#FF0000] group/icon transition-all shadow-sm">
                     <YoutubeIcon className="w-5 h-5 text-[#FF0000] group-hover/icon:text-white transition-colors" />
                   </a>
                 </div>

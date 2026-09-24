@@ -3,9 +3,12 @@ import Link from "next/link";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "About Us | Do Reports – ताज्या मराठी बातम्या",
+  title: "About Us | आमच्याबद्दल माहिती",
   description:
     "Learn about Do Reports – Maharashtra's trusted digital news platform. Discover our vision, ethos, culture, and mission to deliver accurate, impactful Marathi news.",
+  alternates: {
+    canonical: "/about",
+  },
 };
 
 /* ── Social Media Icons ──────────────────────────────────── */

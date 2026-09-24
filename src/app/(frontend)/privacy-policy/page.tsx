@@ -3,9 +3,12 @@ import Link from "next/link";
 import { Shield, Eye, Cookie, Users, Lock, Bell, Mail, FileText, ChevronRight } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Do Reports",
+  title: "Privacy Policy | गोपनीयता धोरण",
   description:
     "Read the Privacy Policy of Do Reports. Learn how we collect, use, and protect your personal information when you visit our website.",
+  alternates: {
+    canonical: "/privacy-policy",
+  },
 };
 
 const sections = [

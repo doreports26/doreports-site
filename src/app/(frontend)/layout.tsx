@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Navbar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
+import { SITE } from "@/lib/seo/config";
+import { organizationSchema, websiteSchema } from "@/lib/seo/schema";
+import { JsonLd } from "@/components/seo/JsonLd";
 import "@/app/globals.css";
 
 const geistSans = Geist({
@@ -16,9 +19,39 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://doreports.in"),
-  title: "Do Reports | ताज्या मराठी बातम्या | Maharashtra News & Updates",
+  metadataBase: new URL(SITE.url),
+  applicationName: SITE.name,
+  title: {
+    default: "Do Reports | ताज्या मराठी बातम्या | Maharashtra News & Updates",
+    template: "%s | Do Reports",
+  },
   description: "महाराष्ट्रातील ताज्या आणि महत्त्वपूर्ण घडामोडी, कल्याण-डोंबिवली, राजकारण, शिक्षण आणि क्रीडा क्षेत्रातील बातम्या.",
+  alternates: {
+    canonical: "/",
+    types: { "application/rss+xml": "/feed.xml" },
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    siteName: SITE.name,
+    locale: SITE.locale,
+    url: SITE.url,
+  },
+  twitter: {
+    card: "summary_large_image",
+    site: SITE.twitter,
+    creator: SITE.twitter,
+  },
   icons: {
     icon: [
       { url: "/favicon.ico" },
@@ -45,10 +78,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
-      lang="en"
+      lang="mr"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-white">
+        <JsonLd data={[organizationSchema(), websiteSchema()]} />
         <GoogleAnalytics />
         <Navbar />
         <main className="flex-grow">

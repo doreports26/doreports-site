@@ -19,9 +19,12 @@ export const article = defineType({
       options: {
         source: 'title',
         maxLength: 200,
-        slugify: (input: string) => marathiSlugify(input),
+        slugify: (input: string) => marathiSlugify(input).toLowerCase(),
       },
-      validation: (rule) => rule.required().error('Slug is required'),
+      validation: (rule) =>
+        rule.required().custom((s) =>
+          s?.current && s.current !== s.current.toLowerCase() ? 'Slug must be lowercase' : true
+        ),
     }),
     defineField({
       name: 'author',
@@ -88,6 +91,33 @@ export const article = defineType({
       type: 'text',
       rows: 4,
       description: 'Short summary of the article shown on cards and under the headline',
+    }),
+    defineField({
+      name: 'seoTitle',
+      title: 'SEO Title (मेटा शीर्षक)',
+      type: 'string',
+      description: 'Optional short headline for Google Search & social snippets (~60 chars). Falls back to Title if empty.',
+      validation: (rule) =>
+        rule.custom((val) => {
+          if (val && val.length > 60) {
+            return 'Warning: SEO title longer than 60 characters may be truncated by search engines.'
+          }
+          return true
+        }).warning(),
+    }),
+    defineField({
+      name: 'seoDescription',
+      title: 'SEO Meta Description (मेटा वर्णन)',
+      type: 'text',
+      rows: 3,
+      description: 'Optional meta description for search results (~150 chars). Falls back to Excerpt if empty.',
+      validation: (rule) =>
+        rule.custom((val) => {
+          if (val && val.length > 150) {
+            return 'Warning: Meta description longer than 150 characters may be truncated by search engines.'
+          }
+          return true
+        }).warning(),
     }),
     defineField({
       name: 'body',

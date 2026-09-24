@@ -16,8 +16,15 @@ export async function generateMetadata({
   const resolvedParams = await searchParams;
   const query = resolvedParams.q || "";
   return {
-    title: query ? `शोधाचे निकाल: "${query}" | Do Reports` : `बातमी शोधा | Do Reports`,
+    title: query ? `शोधाचे निकाल: "${query}"` : "बातमी शोधा",
     description: `Search results for "${query}" on Do Reports - Marathi News & Updates`,
+    robots: {
+      index: false,
+      follow: true,
+    },
+    alternates: {
+      canonical: "/search",
+    },
   };
 }
 
@@ -178,11 +185,6 @@ export default async function SearchPage({
         {/* RIGHT COLUMN: Sidebar */}
         <div className="lg:col-span-4 relative">
           <div className="sticky top-24 space-y-8">
-            {/* Ad Placeholder */}
-            <div className="w-full h-[250px] bg-gray-50 border border-dashed border-gray-200 flex items-center justify-center text-gray-400 text-xs tracking-widest uppercase rounded-xl">
-              - Advertisement -
-            </div>
-
             {/* Latest News Widget */}
             <LatestNewsWidget />
           </div>

@@ -13,6 +13,16 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  trailingSlash: false,
+  async redirects() {
+    return [
+      {
+        source: '/category/trending',
+        destination: '/category/important',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

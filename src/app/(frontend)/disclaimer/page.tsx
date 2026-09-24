@@ -17,9 +17,12 @@ import {
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Disclaimer | Do Reports",
+  title: "Disclaimer | अस्वीकरण",
   description:
     "Read the Disclaimer of Do Reports. Understand the terms regarding the use of information published on our news website.",
+  alternates: {
+    canonical: "/disclaimer",
+  },
 };
 
 const sections = [

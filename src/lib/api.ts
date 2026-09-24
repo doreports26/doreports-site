@@ -3,6 +3,7 @@ import { urlFor } from '@/sanity/image'
 
 export interface AuthorItem {
   name: string
+  slug?: string
   fullName?: string
   role?: string
   avatar?: string | null
@@ -14,20 +15,31 @@ export interface AuthorItem {
 export interface CategoryItem {
   name: string
   slug: string
+  title?: string
   badgeColor?: string
+  description?: string
+  intro?: string
+  seoTitle?: string
+  seoDescription?: string
 }
 
 export interface ArticleItem {
   id?: string | number
   slug: string
   title: string
+  seoTitle?: string
+  seoDescription?: string
   date: string
+  publishedAt?: string
+  _updatedAt?: string
   image: string
+  mainImage?: unknown
   tag?: string
   tags?: string[]
   author?: string
   authorDetails?: AuthorItem
   snippet?: string
+  excerpt?: string
   content?: unknown
   rawContent?: string
   category?: CategoryItem | null
@@ -52,6 +64,10 @@ export interface SanityCategoryDoc {
   name?: string
   slug?: string
   badgeColor?: string
+  description?: string
+  intro?: string
+  seoTitle?: string
+  seoDescription?: string
 }
 
 export interface SanityArticleDoc {
@@ -148,8 +164,13 @@ export function transformSanityDocToArticle(doc: SanityArticleDoc): ArticleItem 
   if (doc.category) {
     categoryObj = {
       name: doc.category.title || doc.category.name || 'ताज्या घडामोडी',
+      title: doc.category.title || doc.category.name || 'ताज्या घडामोडी',
       slug: doc.category.slug || 'latest-news',
       badgeColor: doc.category.badgeColor || '#cd0442',
+      description: doc.category.description,
+      intro: (doc.category as { intro?: string })?.intro,
+      seoTitle: (doc.category as { seoTitle?: string })?.seoTitle,
+      seoDescription: (doc.category as { seoDescription?: string })?.seoDescription,
     }
   }
 
@@ -170,13 +191,19 @@ export function transformSanityDocToArticle(doc: SanityArticleDoc): ArticleItem 
     id: doc._id,
     slug: cleanSlug,
     title: doc.title || '',
+    seoTitle: doc.seoTitle as string | undefined,
+    seoDescription: doc.seoDescription as string | undefined,
     date: formatDate(doc.publishedAt),
+    publishedAt: doc.publishedAt,
+    _updatedAt: doc._updatedAt as string | undefined,
     image,
+    mainImage: doc.mainImage,
     tag: doc.tag || 'Do Reports',
     tags: tagsList,
     author: authorName,
     authorDetails: authorObj,
     snippet: doc.excerpt || doc.snippet,
+    excerpt: doc.excerpt || doc.snippet,
     content: doc.body || doc.content,
     rawContent: doc.rawContent,
     category: categoryObj,
@@ -219,7 +246,10 @@ export function resolveCategorySlugs(slug: string): string[] {
 // ─── GROQ projection shared by all article/post queries ───────────────────────────
 const articleProjection = `{
   _id,
+  _updatedAt,
   title,
+  seoTitle,
+  seoDescription,
   "slug": slug.current,
   publishedAt,
   tag,
@@ -235,8 +265,8 @@ const articleProjection = `{
   imageUrl,
   mainImage,
   authorNameFallback,
-  author->{name, fullName, role, image, avatar, avatarLetter, verified, bio},
-  category->{title, name, "slug": slug.current, badgeColor},
+  author->{name, fullName, role, image, avatar, avatarLetter, verified, bio, "slug": slug.current},
+  category->{title, name, "slug": slug.current, badgeColor, description, intro, seoTitle, seoDescription},
   views,
 }`
 
@@ -460,7 +490,7 @@ export async function getArticleBySlug(
 /**
  * Fetch Category Details (title, badgeColor, description) from Sanity or defaults.
  */
-export async function getCategoryDetails(slug: string): Promise<{ title: string; badgeColor?: string; description?: string } | null> {
+export async function getCategoryDetails(slug: string): Promise<CategoryItem | null> {
   const defaultTitles: Record<string, string> = {
     "latest-news": "Latest News",
     "kalyan-dombivli": "कल्याण- डोंबिवली (KDMC)",
@@ -486,10 +516,15 @@ export async function getCategoryDetails(slug: string): Promise<{ title: string;
     try {
       const slugs = resolveCategorySlugs(slug)
       const doc = await client.fetch(
-        `*[_type == "category" && slug.current in $slugs][0]{
+        `*[_type == "category" && (slug.current in $slugs || lower(slug.current) in $slugs)][0]{
           "title": coalesce(title, name),
+          "name": coalesce(title, name),
+          "slug": slug.current,
           badgeColor,
-          description
+          description,
+          intro,
+          seoTitle,
+          seoDescription
         }`,
         { slugs }
       )
@@ -497,8 +532,13 @@ export async function getCategoryDetails(slug: string): Promise<{ title: string;
       if (doc && doc.title) {
         return {
           title: doc.title.trim(),
+          name: doc.title.trim(),
+          slug: doc.slug || slug,
           badgeColor: doc.badgeColor,
           description: doc.description,
+          intro: doc.intro,
+          seoTitle: doc.seoTitle,
+          seoDescription: doc.seoDescription,
         }
       }
     } catch (err) {
@@ -506,10 +546,16 @@ export async function getCategoryDetails(slug: string): Promise<{ title: string;
     }
   }
 
-  const fallbackTitle = defaultTitles[slug] || defaultTitles[slug.toLowerCase()] || slug.replace(/-/g, ' ').toUpperCase()
-  return {
-    title: fallbackTitle,
+  const fallback = defaultTitles[slug] || defaultTitles[slug.toLowerCase()]
+  if (fallback) {
+    return {
+      title: fallback,
+      name: fallback,
+      slug: slug.toLowerCase(),
+    }
   }
+
+  return null
 }
 
 /**

@@ -175,7 +175,7 @@ export default function ContactClient() {
                   <XIcon className="w-4 h-4" />
                 </a>
                 <a
-                  href="https://www.instagram.com/doreportsnews?utm_source=ig_web_button_share_sheet&igsi=ZDNlZDc0MzIxNw=="
+                  href="https://www.instagram.com/doreportsnews"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Instagram"
@@ -193,7 +193,7 @@ export default function ContactClient() {
                   <YoutubeIcon className="w-4 h-4" />
                 </a>
                 <a
-                  href="https://whatsapp.com/channel/doreports"
+                  href="https://whatsapp.com/channel/0029Va9W8X69hXFBzBvM2O3k"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="WhatsApp Channel"

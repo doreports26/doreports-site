@@ -1,25 +1,66 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { LatestNewsWidget } from "@/components/LatestNewsWidget";
 import { Pagination } from "@/components/Pagination";
 import { getArticlesByCategory, getCategoryDetails, type ArticleItem } from "@/lib/api";
 import { CategoryTracker } from "@/components/analytics/CategoryTracker";
+import { breadcrumbSchema } from "@/lib/seo/schema";
+import { JsonLd } from "@/components/seo/JsonLd";
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic'
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams?: Promise<{ page?: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
+  const search = searchParams ? await searchParams : {};
   const details = await getCategoryDetails(slug);
-  const title = details?.title || "Category";
+  if (!details) {
+    return {
+      title: "श्रेणी सापडली नाही",
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const title = details.seoTitle || details.title;
+  const description =
+    details.seoDescription ||
+    details.description ||
+    details.intro ||
+    `${details.title} संबंधित ताज्या घडामोडी आणि सर्व महत्त्वाच्या बातम्या वाचा Do Reports वर.`;
+
+  const canonicalPath = search?.page && parseInt(search.page, 10) > 1
+    ? `/category/${slug}?page=${search.page}`
+    : `/category/${slug}`;
+
   return {
-    title: `${title} बातम्या | Do Reports`,
-    description: `Read the latest updates and breaking news for ${title} on Do Reports.`,
+    title,
+    description,
+    alternates: {
+      canonical: canonicalPath,
+    },
+    openGraph: {
+      type: "website",
+      url: canonicalPath,
+      title,
+      description,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
   };
 }
 
 export default async function CategoryPage({
   params,
-  searchParams
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ page?: string }>;
@@ -27,13 +68,23 @@ export default async function CategoryPage({
   const { slug } = await params;
   const resolvedSearchParams = await searchParams;
   const categoryDetails = await getCategoryDetails(slug);
-  const title = categoryDetails?.title || slug.replace(/-/g, ' ').toUpperCase();
-  const currentPage = resolvedSearchParams.page ? parseInt(resolvedSearchParams.page, 10) : 1;
-  
+
+  if (!categoryDetails) {
+    notFound();
+  }
+
+  const title = categoryDetails.title || categoryDetails.name || "Category";
+  const currentPage = resolvedSearchParams?.page ? parseInt(resolvedSearchParams.page, 10) : 1;
   const { docs: articles, totalPages, totalDocs } = await getArticlesByCategory(slug, currentPage, 6);
+
+  const breadcrumbJsonLd = breadcrumbSchema([
+    { name: "मुख्यपृष्ठ", path: "/" },
+    { name: title, path: `/category/${slug}` },
+  ]);
 
   return (
     <div className="max-w-[1200px] mx-auto px-4 py-8 font-sans">
+      <JsonLd data={breadcrumbJsonLd} />
       <CategoryTracker
         slug={slug}
         title={title}
@@ -42,14 +93,23 @@ export default async function CategoryPage({
       />
 
       {/* Category Header */}
-      <div className="flex items-center justify-between mb-10 border-b-2 border-gray-100 pb-4 mt-2">
-        <div className="flex items-center space-x-4">
-          <div className="w-2 h-10 bg-gradient-to-b from-[#f72e06] to-[#cd0442] rounded-full"></div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-[#090909] tracking-tight">{title}</h1>
+      <div className="mb-8 border-b-2 border-gray-100 pb-4 mt-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <div className="w-2 h-10 bg-gradient-to-b from-[#f72e06] to-[#cd0442] rounded-full"></div>
+            <h1 className="text-3xl md:text-4xl font-extrabold text-[#090909] tracking-tight">{title}</h1>
+          </div>
+          <div className="hidden md:flex items-center text-sm font-bold text-[#cd0442] uppercase tracking-widest bg-[#cd0442]/5 px-4 py-1.5 rounded-full border border-[#cd0442]/20">
+            Category
+          </div>
         </div>
-        <div className="hidden md:flex items-center text-sm font-bold text-[#cd0442] uppercase tracking-widest bg-[#cd0442]/5 px-4 py-1.5 rounded-full border border-[#cd0442]/20">
-          Category
-        </div>
+
+        {/* Hyperlocal Intro Paragraph if available */}
+        {categoryDetails.intro && (
+          <p className="mt-4 text-sm md:text-base text-gray-600 leading-relaxed max-w-3xl">
+            {categoryDetails.intro}
+          </p>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
@@ -68,7 +128,7 @@ export default async function CategoryPage({
                   <div className="w-full md:w-[40%] h-[220px] md:h-[200px] bg-gray-200 rounded-lg relative overflow-hidden shadow-sm">
                     <img 
                       src={item.image} 
-                      alt={item.title}
+                      alt={item.title} 
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <div className="absolute top-3 left-3 bg-[#090909]/95 backdrop-blur-sm text-white text-[11px] font-bold px-3 py-1.5 uppercase tracking-wide z-10 shadow-md flex items-center space-x-2 rounded-[3px]">
@@ -108,11 +168,6 @@ export default async function CategoryPage({
         {/* RIGHT COLUMN: Sidebar (Sticky) */}
         <div className="lg:col-span-4 relative">
           <div className="sticky top-24 space-y-8">
-            {/* Ad Placeholder */}
-            <div className="w-full h-[250px] bg-gray-100 border border-gray-200 flex items-center justify-center text-gray-400 text-xs tracking-widest uppercase rounded-sm">
-              - Advertisement -
-            </div>
-
             {/* Latest News Widget */}
             <LatestNewsWidget />
           </div>
