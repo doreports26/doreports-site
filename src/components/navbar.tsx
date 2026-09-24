@@ -382,13 +382,15 @@ export function Navbar() {
                       Get the latest updates directly on your feed.
                     </p>
                     <div className="flex items-center space-x-3">
-                      <Link
-                        href="#"
+                      <a
+                        href="https://www.facebook.com/share/1B71iGuXvq/"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:text-[#cd0442] hover:border-[#cd0442] hover:shadow-md transition-all duration-200"
                         aria-label="Facebook"
                       >
                         <Facebook size={18} />
-                      </Link>
+                      </a>
                       <Link
                         href="#"
                         className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:text-[#1DA1F2] hover:border-[#1DA1F2] hover:shadow-md transition-all duration-200"

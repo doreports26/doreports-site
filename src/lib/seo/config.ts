@@ -12,6 +12,7 @@ export const SITE = {
   twitter: '@doreports26',
   logo: '/do-reports-logo.png',
   sameAs: [
+    'https://www.facebook.com/share/1B71iGuXvq/',
     'https://x.com/doreports26',
     'https://www.instagram.com/doreportsnews',        // strip utm/igsi params
     'https://www.youtube.com/@doreports-i1z',

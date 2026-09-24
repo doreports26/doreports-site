@@ -13,11 +13,6 @@ const XIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-const WhatsappIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
-    <path d="M12.031 0C5.405 0 0 5.405 0 12.031c0 2.128.556 4.195 1.611 6.012L.373 24l6.115-1.602a11.96 11.96 0 0 0 5.543 1.353h.005c6.623 0 12.029-5.406 12.029-12.031C24.065 5.405 18.654 0 12.031 0Zm0 21.737h-.003a9.927 9.927 0 0 1-5.06-1.378l-.363-.215-3.766.987.997-3.67-.236-.376a9.92 9.92 0 0 1-1.522-5.321c0-5.485 4.463-9.948 9.954-9.948 5.488 0 9.949 4.463 9.949 9.948 0 5.487-4.461 9.948-9.95 9.948Zm5.46-7.48c-.299-.151-1.771-.875-2.046-.975-.274-.1-.474-.151-.674.151-.2.301-.773.975-.948 1.176-.174.201-.349.225-.648.075-.299-.151-1.264-.466-2.408-1.488-.89-.794-1.492-1.775-1.666-2.076-.174-.301-.019-.464.131-.614.135-.135.299-.35.449-.525.15-.175.2-.301.299-.5.1-.201.05-.375-.025-.525-.075-.151-.674-1.625-.923-2.225-.241-.582-.487-.503-.674-.513-.174-.008-.374-.008-.574-.008a1.1 1.1 0 0 0-.799.375c-.299.301-1.148 1.125-1.148 2.744s1.173 3.181 1.336 3.4c.162.226 2.316 3.535 5.611 4.958 2.65 1.145 3.447 1.05 4.07 1.05.733 0 2.369-.968 2.706-1.905.337-.937.337-1.743.237-1.918-.1-.175-.374-.275-.673-.425Z" />
-  </svg>
-);
 
 const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
@@ -132,14 +127,11 @@ export function Footer() {
                 </div>
 
                 <div className="flex items-center justify-between gap-2 border-t border-white/5 pt-5">
-                  <a href="https://facebook.com/doreports" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="w-11 h-11 rounded-lg bg-[#1877F2]/10 border border-[#1877F2]/20 flex items-center justify-center hover:bg-[#1877F2] group/icon transition-all shadow-sm">
+                  <a href="https://www.facebook.com/share/1B71iGuXvq/" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="w-11 h-11 rounded-lg bg-[#1877F2]/10 border border-[#1877F2]/20 flex items-center justify-center hover:bg-[#1877F2] group/icon transition-all shadow-sm">
                     <FacebookIcon className="w-5 h-5 text-[#1877F2] group-hover/icon:text-white transition-colors" />
                   </a>
                   <a href="https://x.com/doreports26" target="_blank" rel="noopener noreferrer" aria-label="X (Twitter)" className="w-11 h-11 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-black group/icon transition-all shadow-sm">
                     <XIcon className="w-5 h-5 text-gray-300 group-hover/icon:text-white transition-colors" />
-                  </a>
-                  <a href="https://whatsapp.com/channel/0029Va9W8X69hXFBzBvM2O3k" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp Channel" className="w-11 h-11 rounded-lg bg-[#25D366]/10 border border-[#25D366]/20 flex items-center justify-center hover:bg-[#25D366] group/icon transition-all shadow-sm">
-                    <WhatsappIcon className="w-6 h-6 text-[#25D366] group-hover/icon:text-white transition-colors" />
                   </a>
                   <a href="https://www.instagram.com/doreportsnews" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="w-11 h-11 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center hover:bg-gradient-to-tr hover:from-yellow-400 hover:via-pink-500 hover:to-purple-600 group/icon transition-all shadow-sm">
                     <InstagramIcon className="w-5 h-5 text-pink-500 group-hover/icon:text-white transition-colors" />

@@ -157,7 +157,7 @@ export default function ContactClient() {
               </h3>
               <div className="flex items-center gap-3">
                 <a
-                  href="https://facebook.com/doreports"
+                  href="https://www.facebook.com/share/1B71iGuXvq/"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Facebook"
