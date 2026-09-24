@@ -11,7 +11,8 @@ import { newsArticleSchema, breadcrumbSchema } from "@/lib/seo/schema";
 import { JsonLd } from "@/components/seo/JsonLd";
 import type { Metadata } from "next";
 
-export const dynamic = 'force-dynamic'
+// Fallback ISR revalidation (1 hour). Primary revalidation is event-driven via /api/revalidate webhook.
+export const revalidate = 3600;
 
 export async function generateMetadata({
   params,

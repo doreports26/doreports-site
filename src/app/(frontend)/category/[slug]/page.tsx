@@ -8,7 +8,7 @@ import { breadcrumbSchema } from "@/lib/seo/schema";
 import { JsonLd } from "@/components/seo/JsonLd";
 import type { Metadata } from 'next';
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 300
 
 export async function generateMetadata({
   params,
@@ -142,7 +142,7 @@ export default async function CategoryPage({
                     <div className="flex items-center space-x-2 text-xs text-gray-500 mb-2">
                       <span className="font-semibold text-[#cd0442]">By {item.author || "Do Reports Desk"}</span>
                       <span>—</span>
-                      <span>{item.date}</span>
+                      <time dateTime={item.publishedAt || undefined}>{item.date}</time>
                     </div>
                     <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 leading-snug group-hover:text-[#cd0442] cursor-pointer transition-colors line-clamp-2">
                       {item.title}

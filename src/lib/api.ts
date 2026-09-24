@@ -94,13 +94,15 @@ export interface SanityArticleDoc {
 }
 
 function formatDate(dateVal?: string | Date): string {
-  if (!dateVal) return new Date().toLocaleDateString('mr-IN', { month: 'long', day: 'numeric', year: 'numeric' })
+  if (!dateVal) return ''
   try {
     const d = new Date(dateVal)
+    if (Number.isNaN(d.getTime())) return String(dateVal)
     return d.toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
       year: 'numeric',
+      timeZone: 'Asia/Kolkata',
     })
   } catch {
     return String(dateVal)

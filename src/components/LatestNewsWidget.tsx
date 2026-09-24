@@ -52,7 +52,7 @@ export async function LatestNewsWidget() {
               <div className="absolute bottom-0 left-0 w-full p-4 z-20 flex flex-col justify-end">
                 <div className="flex items-center space-x-1.5 text-white/90 text-[11px] mb-2 font-medium">
                   <Clock className="w-3.5 h-3.5" />
-                  <span>{mainStory.date}</span>
+                  <time dateTime={mainStory.publishedAt || undefined}>{mainStory.date}</time>
                 </div>
                 <h3 className="text-white font-bold text-xl leading-snug group-hover:text-[#f72e06] transition-colors line-clamp-2">
                   {mainStory.title}
@@ -86,7 +86,7 @@ export async function LatestNewsWidget() {
                   </h4>
                   <div className="flex items-center space-x-1.5 text-gray-500 text-[11px] font-medium">
                     <Clock className="w-3 h-3" />
-                    <span>{news.date}</span>
+                    <time dateTime={news.publishedAt || undefined}>{news.date}</time>
                   </div>
                 </div>
 

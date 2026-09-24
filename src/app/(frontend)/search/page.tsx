@@ -154,7 +154,7 @@ export default async function SearchPage({
                       <div className="flex items-center space-x-2 text-xs text-gray-500 mb-2">
                         <span className="font-semibold text-[#cd0442]">By {item.author || "Do Reports Desk"}</span>
                         <span>—</span>
-                        <span>{item.date}</span>
+                        <time dateTime={item.publishedAt || undefined}>{item.date}</time>
                       </div>
                       <h2 className="text-lg md:text-xl font-bold text-gray-900 mb-2 leading-snug group-hover:text-[#cd0442] transition-colors line-clamp-2">
                         {item.title}

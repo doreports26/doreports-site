@@ -7,8 +7,8 @@ import {
 } from "@/lib/api";
 import { LatestNewsWidget } from "@/components/LatestNewsWidget";
 
-// Dynamic rendering for real-time news updates
-export const dynamic = 'force-dynamic'
+// ISR caching with 5-minute fallback and instant on-demand webhook revalidation
+export const revalidate = 300
 
 export default async function Home() {
   const mainStory = await getMainStory();
@@ -92,7 +92,7 @@ export default async function Home() {
                         <div className="absolute bottom-0 left-0 right-0 p-5 bg-gradient-to-t from-black/95 via-black/80 to-transparent pt-14">
                           <div className="flex items-center gap-1.5 text-gray-300 text-xs mb-2">
                             <Clock className="w-3.5 h-3.5" />
-                            <span>{mainStory.date}</span>
+                            <time dateTime={mainStory.publishedAt || undefined}>{mainStory.date}</time>
                           </div>
                           <h1 className="text-xl md:text-2xl font-bold text-white leading-tight group-hover:text-red-200 transition-colors">
                             {mainStory.title}
@@ -128,7 +128,7 @@ export default async function Home() {
                           </h3>
                           <div className="flex items-center gap-1.5 text-gray-500 text-[11px] mt-1.5">
                             <Clock className="w-3 h-3" />
-                            <span>{story.date}</span>
+                            <time dateTime={story.publishedAt || undefined}>{story.date}</time>
                           </div>
                         </div>
                       </div>
@@ -172,7 +172,7 @@ export default async function Home() {
                               </h4>
                               <div className="flex items-center gap-1.5 text-gray-500 text-[11px] mt-1.5">
                                 <Clock className="w-3 h-3" />
-                                <span>{story.date}</span>
+                                <time dateTime={story.publishedAt || undefined}>{story.date}</time>
                               </div>
                             </div>
                           </div>
@@ -212,7 +212,7 @@ export default async function Home() {
                               </h4>
                               <div className="flex items-center gap-1.5 text-gray-500 text-[11px]">
                                 <Clock className="w-3 h-3" />
-                                <span>{story.date}</span>
+                                <time dateTime={story.publishedAt || undefined}>{story.date}</time>
                               </div>
                             </div>
                           </div>
@@ -257,7 +257,7 @@ export default async function Home() {
                           </h4>
                           <div className="flex items-center gap-1.5 text-gray-500 text-[10px] mt-2">
                             <Clock className="w-2.5 h-2.5" />
-                            <span>{story.date}</span>
+                            <time dateTime={story.publishedAt || undefined}>{story.date}</time>
                           </div>
                         </div>
                       </div>
@@ -307,7 +307,7 @@ export default async function Home() {
                           <span className="w-1 h-1 bg-gray-300 rounded-full" />
                           <div className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
-                            <span>{specialStories[0].date}</span>
+                            <time dateTime={specialStories[0].publishedAt || undefined}>{specialStories[0].date}</time>
                           </div>
                         </div>
                         {specialStories[0].snippet && (
@@ -343,7 +343,7 @@ export default async function Home() {
                               </h3>
                               <div className="flex items-center gap-1.5 text-gray-500 text-[11px] mt-1.5">
                                 <Clock className="w-3 h-3" />
-                                <span>{story.date}</span>
+                                <time dateTime={story.publishedAt || undefined}>{story.date}</time>
                               </div>
                             </div>
                           </div>
@@ -381,7 +381,7 @@ export default async function Home() {
                         <div className="absolute bottom-0 left-0 right-0 p-3">
                           <div className="flex items-center gap-1 text-gray-300 text-[10px] mb-1.5">
                             <Clock className="w-2.5 h-2.5" />
-                            <span>{story.date}</span>
+                            <time dateTime={story.publishedAt || undefined}>{story.date}</time>
                           </div>
                           <h4 className="font-bold text-white text-[13px] leading-tight group-hover:text-[#f72e06] transition-colors line-clamp-3">
                             {story.title}
@@ -427,7 +427,7 @@ export default async function Home() {
                           </h4>
                           <div className="flex items-center gap-1.5 text-gray-500 text-[11px] mt-auto">
                             <Clock className="w-3 h-3 text-gray-400" />
-                            <span>{story.date}</span>
+                            <time dateTime={story.publishedAt || undefined}>{story.date}</time>
                           </div>
                         </div>
                       </div>
@@ -470,7 +470,7 @@ export default async function Home() {
                           </h4>
                           <div className="flex items-center gap-1.5 text-gray-500 text-[11px] mt-2">
                             <Clock className="w-3 h-3" />
-                            <span>{story.date}</span>
+                            <time dateTime={story.publishedAt || undefined}>{story.date}</time>
                           </div>
                         </div>
                       </div>

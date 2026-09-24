@@ -149,7 +149,9 @@ export function LiveArticleView({
                   <div className="flex items-center gap-2 text-[11px] text-gray-500 font-medium">
                     <span className="flex items-center gap-1">
                       <Calendar className="w-3 h-3 text-gray-400" />
-                      {activeArticle.date}
+                      <time dateTime={activeArticle.publishedAt || undefined}>
+                        {activeArticle.date}
+                      </time>
                     </span>
                     {activeArticle.views !== undefined && activeArticle.views > 0 && (
                       <>
